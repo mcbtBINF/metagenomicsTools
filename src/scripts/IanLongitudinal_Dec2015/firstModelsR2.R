@@ -1,6 +1,6 @@
 rm(list=ls())
 
-setwd("/Users/mbrown67/Documents/Fodor/Datasets/CarrolData/Carroll_Longitudinal")
+setwd("/Users/mbrown67/Documents/Fodor/Datasets/CarrollData/Carroll_Longitudinal")
 library("Kendall")
 
 taxaLevels <- c("phylum","class","order","family","genus")
@@ -9,7 +9,7 @@ taxaLevels <- c("phylum","class","order","family","genus")
 for(t in taxaLevels )
 {
 	pdf(paste(t,"_plots.pdf", sep="") )
-      	inFileName <- paste(t,"LogNormalwithMetadataDailyR2.txt", sep="")
+      	inFileName <- paste(t,"LogNormalwithMetadataDailyR2_Edit.txt", sep="")
 	myT <-read.table(inFileName,header=TRUE,sep="\t")
 	numCols <- ncol(myT)
 	myColClasses <- c(rep("character",2),"numeric", "character", rep("numeric", numCols-4))
@@ -74,7 +74,7 @@ for(t in taxaLevels )
                                          "p interaction = " ,
 					format(interactionPValues[index],digits=3))
 
-                   plot(myT[,i] ~ myT$Day, main = myLabel, col=colors)
+                   plot(myT[,i] ~ myT$Day, main = myLabel, col=colors, ylim=c(0,5))
                                         #plot(myT[,i] ~ myT$BMI, main = myLabel, col=colors)
                    #plot(myT$BMI ~ myT$Day, main = myLabel, col=colors)
 
