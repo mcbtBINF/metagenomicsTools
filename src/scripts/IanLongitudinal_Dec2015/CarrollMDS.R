@@ -8,7 +8,7 @@ taxaLevels <- c( "phylum", "class", "order", "family", "genus" );
 
 for(taxa in taxaLevels )
 {
-    inFileName <- paste( "pivoted_", taxa, "asColumnsLogNormal_r1.txt", sep ="")
+    inFileName <- paste( "pivoted_", taxa, "asColumnsLogNormal_R2.txt", sep ="")
 #    metadataFileName <- paste( taxa, "TaxaAsColumnsLogNormWithMetaData.txt", sep ="")
     myT <-read.table(inFileName,header=TRUE,sep="\t")
 #    	myMeta <-read.table(metadataFileName,header=TRUE,sep="\t")
@@ -27,7 +27,7 @@ for(taxa in taxaLevels )
         # Also include color options for various metadata.
         # pdf( paste(taxa, "1v2.pdf",sep=""))
                                         #        if(taxa == "p") {
-        pdf( paste(taxa, "topMDS.pdf",sep=""))
+        pdf( paste(taxa, "topMDS_R2.pdf",sep=""))
 # Make a smart iterator here.
     for (xrun in 1:4) {
 #            if (xrun < 4) {
@@ -63,7 +63,7 @@ pch=16,
 
         dev.off()
                                         #        }
-        write.table(myMDS$CA$u, sep="\t", file=paste("pcoa_", taxa, ".txt",sep=""))
-	write.table(myMDS$CA$eig,file=paste("eigenValues_", taxa, ".txt", sep=""), sep="\t")
+        write.table(myMDS$CA$u, sep="\t", file=paste("R2_pcoa_", taxa, ".txt",sep=""))
+	write.table(myMDS$CA$eig,file=paste("R2_eigenValues_", taxa, ".txt", sep=""), sep="\t")
 
 }
