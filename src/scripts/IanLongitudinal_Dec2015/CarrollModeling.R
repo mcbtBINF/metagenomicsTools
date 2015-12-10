@@ -7,7 +7,7 @@ library("nlme")
 library("vegan")
 library("Kendall")
 
-setwd("/Users/mbrown67/Documents/Fodor/Datasets/CarrolData/Carroll_Longitudinal")
+setwd("/Users/mbrown67/Documents/Fodor/Datasets/CarrollData/Carroll_Longitudinal")
 
 taxaLevels <- c( "phylum", "class", "order", "family", "genus" );
 
