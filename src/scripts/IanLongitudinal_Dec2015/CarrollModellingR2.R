@@ -9,11 +9,11 @@ library("Kendall")
 
 setwd("/Users/mbrown67/Documents/Fodor/Datasets/CarrollData/Carroll_Longitudinal")
 
-taxaLevels <- c( "phylum", "class", "order", "family", "genus" );
+taxaLevels <- c( "phylum", "class", "order", "family", "genus" )
 
 for(taxa in taxaLevels )
 {
-        inFileName <- paste( taxa, "LogNormalwithMetadata.txt", sep ="")
+        inFileName <- paste( taxa, "LogNormalwithMetadataDailyR2.txt", sep ="")
         myT <-read.table(inFileName,header=TRUE,sep="\t")
 # This was what was likely causing my errors yesterday
                                         #	numCols <- ncol(myT)
