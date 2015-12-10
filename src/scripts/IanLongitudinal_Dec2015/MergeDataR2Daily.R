@@ -1,6 +1,6 @@
 rm(list=ls())
 
-setwd("/Users/mbrown67/Documents/Fodor/Datasets/CarrolData/Carroll_Longitudinal")
+setwd("/Users/mbrown67/Documents/Fodor/Datasets/CarrollData/Carroll_Longitudinal")
 
 taxaLevels <- c( "phylum", "class", "order", "family", "genus" );
 
@@ -18,5 +18,5 @@ for (taxa in taxaLevels)
     myMetadata <- read.table("MetadataDailyAll.txt", header=TRUE, sep="\t")
 
     merged<-merge(x = myT, y = myMetadata, by = "Sample.ID", all = TRUE)
-    write.table(merged,file=paste(taxa,"LogNormalwithMetadataDaily.txt", sep="" ),row.names=FALSE, sep="\t")
+    write.table(merged,file=paste(taxa,"LogNormalwithMetadataDailyR2.txt", sep="" ),row.names=FALSE, sep="\t")
 }
