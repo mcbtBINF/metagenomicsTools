@@ -74,7 +74,7 @@ for(t in taxaLevels )
                                          "p interaction = " ,
 					format(interactionPValues[index],digits=3))
 
-                   plot(myT[,i] ~ myT$Day, main = myLabel, col=colors)
+                   plot(myT[,i] ~ myT$Day, main = myLabel, col=colors, ylim=c(0,5))
                                         #plot(myT[,i] ~ myT$BMI, main = myLabel, col=colors)
                    #plot(myT$BMI ~ myT$Day, main = myLabel, col=colors)
 

@@ -1,7 +1,7 @@
 rm(list=ls())
 
 # setwd("C:\\ianLongitudinal")
-setwd("/Users/mbrown67/Documents/Fodor/Datasets/CarrolData/Carroll_Longitudinal")
+setwd("/Users/mbrown67/Documents/Fodor/Datasets/CarrollData/Carroll_Longitudinal")
 library("Kendall")
 
 taxaLevels <- c("phylum","class","order","family","genus")
