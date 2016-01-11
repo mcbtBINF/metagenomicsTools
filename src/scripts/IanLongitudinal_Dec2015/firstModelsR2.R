@@ -2,6 +2,7 @@ rm(list=ls())
 
 setwd("/Users/mbrown67/Documents/Fodor/Datasets/CarrollData/Carroll_Longitudinal")
 library("Kendall")
+library("vegan")
 
 taxaLevels <- c("phylum","class","order","family","genus")
 #Right Now I'm being lazy with the changing of the variable names
@@ -29,6 +30,7 @@ for(t in taxaLevels )
         AEEPValues <- vector()
         energyPValues <- vector()
 
+        #Patients to colors
 	colors <- vector()
 	cIndex <-1
 	for ( j in 1: nrow(myT))
@@ -50,9 +52,16 @@ for(t in taxaLevels )
 	index <-1
 
 	for( i in 3:ncol(myT))
-	{
+            {
+                #Remove from consideration rare organisms.
 		if( sum( myT[,i] >0 , na.rm=TRUE) > nrow(myT) /4 )
-		{
+                    {
+                                        #Colors as a proxy for patient.
+
+                                        #Compute Shannon diversity and Shannon richness via vegan
+                        myShannon <- diversity(myT[,i])
+#                        myRichness <-
+
                     myLm <- lm( myT[,i] ~ colors *  myT$Day )
 #                    myLm <- lm( myT[,i] ~ colors *  myT$BMI )
 #                    myLm <- lm( myT$BMI ~ colors *  myT$Day )
