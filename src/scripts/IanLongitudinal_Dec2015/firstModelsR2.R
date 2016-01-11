@@ -53,16 +53,26 @@ for(t in taxaLevels )
 
 	for( i in 3:ncol(myT))
             {
-                #Remove from consideration rare organisms.
+                                        #Remove from consideration rare organisms.
+                                        #Working with a single color now
+                        if( colors[[i]] == "Black") {
 		if( sum( myT[,i] >0 , na.rm=TRUE) > nrow(myT) /4 )
                     {
                                         #Colors as a proxy for patient.
+                                        # Working on single color at this point
+
+
 
                                         #Compute Shannon diversity and Shannon richness via vegan
                         myShannon <- diversity(myT[,i])
 #                        myRichness <-
 
-                    myLm <- lm( myT[,i] ~ colors *  myT$Day )
+                        myLm <- lm( myT[,i] ~ colors *  myT$Day )
+                        checkAll <- lm(myT[,i] ~ colors + myT$Day + myT$Imputed.BMI + myT$Energy.Intake..kcal.day. +
+                                        # Interactions
+                                           colors*myT$Day + colors*myT$Imputed.BMI + colors*myT$Energy.Intake..kcal.day. +
+                                           myT$Day*myT$Imputed.BMI + myT$Imputed.BMI*myT$Energy.Intake..kcal.day. + myT$Day*myT$Energy.Intake..kcal.day.
+                                       )
 #                    myLm <- lm( myT[,i] ~ colors *  myT$BMI )
 #                    myLm <- lm( myT$BMI ~ colors *  myT$Day )
 
@@ -94,7 +104,9 @@ for(t in taxaLevels )
                         index = index + 1
 
 		}
-	}
+            }
+                    }
+
 	dev.off()
 
 	dFrame <- data.frame( names,patientPValues, timePValues ,interactionPValues )
