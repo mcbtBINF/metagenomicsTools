@@ -36,6 +36,8 @@ for(t in taxaLevels )
         AEEPValues <- vector()
         energyPValues <- vector()
 
+        fullPValues <- list()
+
         #Patients to colors
 	colors <- vector()
 	cIndex <-1
@@ -64,7 +66,7 @@ for(t in taxaLevels )
                                         #Patient B
 #        myT<- myT[seq(68,114),]
                                         #Patient C
-                                        #        myT<- myT[seq(115,147),]
+#        myT<- myT[seq(115,147),]
                                         #Excludes other measurement columns
 
         pval.list <- list()
@@ -81,26 +83,33 @@ for(t in taxaLevels )
                                                 EnergyIntake<-myT$Energy.Intake..kcal.day.
                                                 taxaType <- myT[,i]
 
-                                                # Simple model which doesn't explain much of the variance
-                                                myLm <- lm(taxaType ~ Day, x=TRUE)
+                                             #   if(modelNum == 0) {
+                                        # Simple model which doesn't explain much of the variance
 
+                                                myLm <- lm(taxaType ~ Day, x=TRUE)
+                                            #}
 
 #                                                pval.list[[i]]<-summary(myLm)$coefficients[,4]
  #                                               rsquared.list[[i]]<-summary(myLm)$r.squared
 
-                                                anova(myLm)
-                                                plot(Day, taxaType)
-                                                abline(myLm)
+                                             #   anova(myLm)
+                                              #  plot(Day, taxaType)
+                                               # abline(myLm)
                                         #Simple No Interaction
                                                 BMILm <- lm(taxaType ~ ImputedBMI + EnergyIntake, x = TRUE)
                                                 myNoInteractLm <- lm(taxaType ~ Day + ImputedBMI + EnergyIntake, x = TRUE)
 
-                                                #All possible situation
-                                                fullModel <- lm(taxaType ~ Day + ImputedBMI + EnergyIntake + Day*ImputedBMI + Day*EnergyIntake + ImputedBMI*EnergyIntake, x=TRUE)
+                                        #All possible situation
+                                               # if(modelNum == 21) {
+                                                    fullModel <- lm(taxaType ~ Day + ImputedBMI + EnergyIntake + Day*ImputedBMI + Day*EnergyIntake + ImputedBMI*EnergyIntake + Day*ImputedBMI*EnergyIntake, x = TRUE)
+                                               # }
                                         #Suggested from fullModel
                                                 mySuggested <- lm(taxaType ~ Day + ImputedBMI*EnergyIntake, x = TRUE)
                                                 timePValues[index]<-summary(myLm)$coefficients[,4][[2]]
-#print(summary(myLm)$coefficients[,4][[2]])
+
+                                                fullPValues[index]<-list(summary(fullModel)$coefficients[,4][-1])
+
+                                        #print(summary(myLm)$coefficients[,4][[2]])
 
                                         #                                                timePValues[index] <- anova(myLm)$"p-value"[2]
 
@@ -109,7 +118,7 @@ for(t in taxaLevels )
 
                                                 # Graphing stuff goes here.
 
-                                                index=index+1
+                                                index = index + 1
 
                                         #Compute Shannosn diversity and Shannon richness via vegan
 #                        myShannon <- diversity(myT[,i])
@@ -183,6 +192,16 @@ for(t in taxaLevels )
 	dFrame <- data.frame( names, timePValues) # ,interactionPValues )
        dFrame <- dFrame [order(dFrame$timePValues),]
 	dFrame$adjTime<-  p.adjust( dFrame$timePValues , method = "BH" )
+
+        fullPV.df <- data.frame(fullPValues)
+        fullPV.df <- t(fullPV.df)
+        dFrameFull <- data.frame(names, fullPV.df)
+        rownames(dFrameFull) <- names
+        for (m in 2:dim(dFrameFull)[2]) {
+            dFrameFull[,dim(dFrameFull)[2] + 1] <- p.adjust(dFrameFull[,m], method = "BH")
+            colnames(dFrameFull)[ncol(dFrameFull)]<-paste0("adj",colnames(dFrameFull)[m])
+        }
+
 
 
                                         #	dFrame$adjPatient<-  p.adjust( dFrame$patientPValues, method = "BH" )
