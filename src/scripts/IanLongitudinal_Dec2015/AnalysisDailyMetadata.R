@@ -4,6 +4,8 @@ setwd("/Users/mbrown67/Documents/Fodor/Datasets/CarrollData/Carroll_Longitudinal
 
 library("Kendall")
 library("vegan")
+library("lmtest")
+library("pscl")
 library("nlme")
 
 taxaLevels <- c("phylum","class","order","family","genus")
@@ -11,7 +13,7 @@ taxaLevels <- c("phylum","class","order","family","genus")
 
 for(t in taxaLevels )
 {
-        t<-taxaLevels[[1]]
+#      t<-taxaLevels[[1]]
 #	pdf(paste(t,"_plots.pdf", sep="") )
       	inFileName <- paste(t,"LogNormalwithMetadataDailyR2_Edit.txt", sep="")
 	myT <-read.table(inFileName,header=TRUE,sep="\t")
@@ -63,7 +65,8 @@ for(t in taxaLevels )
 #        myT<- myT[seq(68,114),]
                                         #Patient C
                                         #        myT<- myT[seq(115,147),]
-#Excludes other measurement columns
+                                        #Excludes other measurement columns
+
         pval.list <- list()
         rsquared.list <- list()
 
@@ -79,11 +82,11 @@ for(t in taxaLevels )
                                                 taxaType <- myT[,i]
 
                                                 # Simple model which doesn't explain much of the variance
-                                                myLm <- lm(taxaType ~ Day, x = TRUE)
+                                                myLm <- lm(taxaType ~ Day, x=TRUE)
 
 
-                                                pval.list[[i]]<-summary(myLm)$coefficients[,4]
-                                                rsquared.list[[i]]<-summary(myLm)$r.squared
+#                                                pval.list[[i]]<-summary(myLm)$coefficients[,4]
+ #                                               rsquared.list[[i]]<-summary(myLm)$r.squared
 
                                                 anova(myLm)
                                                 plot(Day, taxaType)
@@ -96,10 +99,17 @@ for(t in taxaLevels )
                                                 fullModel <- lm(taxaType ~ Day + ImputedBMI + EnergyIntake + Day*ImputedBMI + Day*EnergyIntake + ImputedBMI*EnergyIntake, x=TRUE)
                                         #Suggested from fullModel
                                                 mySuggested <- lm(taxaType ~ Day + ImputedBMI*EnergyIntake, x = TRUE)
-                                        #Colors as a proxy for patient.
-                                        # Working on single color at this point
-#                        print(colors[[i]])
+                                                timePValues[index]<-summary(myLm)$coefficients[,4][[2]]
+#print(summary(myLm)$coefficients[,4][[2]])
 
+                                        #                                                timePValues[index] <- anova(myLm)$"p-value"[2]
+
+                                                names[index] = names(myT)[i]
+
+
+                                                # Graphing stuff goes here.
+
+                                                index=index+1
 
                                         #Compute Shannosn diversity and Shannon richness via vegan
 #                        myShannon <- diversity(myT[,i])
@@ -169,17 +179,20 @@ for(t in taxaLevels )
 
 #	dev.off()
 
+
 	dFrame <- data.frame( names, timePValues) # ,interactionPValues )
        dFrame <- dFrame [order(dFrame$timePValues),]
 	dFrame$adjTime<-  p.adjust( dFrame$timePValues , method = "BH" )
-#	dFrame$adjPatient<-  p.adjust( dFrame$patientPValues, method = "BH" )
+
+
+                                        #	dFrame$adjPatient<-  p.adjust( dFrame$patientPValues, method = "BH" )
 #      	dFrame <- data.frame( names,patientPValues, BMIPValues, interactionPValues )
  #      dFrame <- dFrame [order(dFrame$BMIPValues),]
 #	dFrame$adjBMI<-  p.adjust( dFrame$BMIPValues , method = "BH" )
 #	dFrame$adjPatient<-  p.adjust( dFrame$patientPValues, method = "BH" )
 
 
-	write.table( file= paste( "pValuesLongitudinalModel_", t, ".txt", sep=""), dFrame, row.names=FALSE, sep="\t")
+	write.table(dFrame, file= paste( "pValuesLongitudinalSimpleModel_PatientA_", t, ".txt", sep=""), row.names=FALSE, sep="\t")
 
 #Temporarily just looking at one taxonomic level
 }
