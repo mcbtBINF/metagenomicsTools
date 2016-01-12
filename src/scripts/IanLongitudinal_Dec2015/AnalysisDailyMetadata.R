@@ -64,7 +64,10 @@ for(t in taxaLevels )
                                         #Patient C
                                         #        myT<- myT[seq(115,147),]
 #Excludes other measurement columns
- 	for( i in 2:(ncol(myT) - 14) )
+        pval.list <- list()
+        rsquared.list <- list()
+
+        for( i in 2:(ncol(myT) - 14) )
             {
                                         #Remove from consideration rare organisms.
 
@@ -75,18 +78,30 @@ for(t in taxaLevels )
                                                 EnergyIntake<-myT$Energy.Intake..kcal.day.
                                                 taxaType <- myT[,i]
 
-
+                                                # Simple model which doesn't explain much of the variance
                                                 myLm <- lm(taxaType ~ Day, x = TRUE)
+
+
+                                                pval.list[[i]]<-summary(myLm)$coefficients[,4]
+                                                rsquared.list[[i]]<-summary(myLm)$r.squared
+
                                                 anova(myLm)
                                                 plot(Day, taxaType)
                                                 abline(myLm)
+                                        #Simple No Interaction
+                                                BMILm <- lm(taxaType ~ ImputedBMI + EnergyIntake, x = TRUE)
+                                                myNoInteractLm <- lm(taxaType ~ Day + ImputedBMI + EnergyIntake, x = TRUE)
 
+                                                #All possible situation
+                                                fullModel <- lm(taxaType ~ Day + ImputedBMI + EnergyIntake + Day*ImputedBMI + Day*EnergyIntake + ImputedBMI*EnergyIntake, x=TRUE)
+                                        #Suggested from fullModel
+                                                mySuggested <- lm(taxaType ~ Day + ImputedBMI*EnergyIntake, x = TRUE)
                                         #Colors as a proxy for patient.
                                         # Working on single color at this point
 #                        print(colors[[i]])
 
 
-                                        #Compute Shannon diversity and Shannon richness via vegan
+                                        #Compute Shannosn diversity and Shannon richness via vegan
 #                        myShannon <- diversity(myT[,i])
 #                        myRichness <-
 
@@ -154,17 +169,17 @@ for(t in taxaLevels )
 
 #	dev.off()
 
-#	dFrame <- data.frame( names,patientPValues, timePValues ,interactionPValues )
-#       dFrame <- dFrame [order(dFrame$timePValues),]
-#	dFrame$adjTime<-  p.adjust( dFrame$timePValues , method = "BH" )
+	dFrame <- data.frame( names, timePValues) # ,interactionPValues )
+       dFrame <- dFrame [order(dFrame$timePValues),]
+	dFrame$adjTime<-  p.adjust( dFrame$timePValues , method = "BH" )
 #	dFrame$adjPatient<-  p.adjust( dFrame$patientPValues, method = "BH" )
 #      	dFrame <- data.frame( names,patientPValues, BMIPValues, interactionPValues )
-#       dFrame <- dFrame [order(dFrame$BMIPValues),]
+ #      dFrame <- dFrame [order(dFrame$BMIPValues),]
 #	dFrame$adjBMI<-  p.adjust( dFrame$BMIPValues , method = "BH" )
 #	dFrame$adjPatient<-  p.adjust( dFrame$patientPValues, method = "BH" )
 
 
-#	write.table( file= paste( "pValuesLongitudinalModel_", t, ".txt", sep=""), dFrame, row.names=FALSE, sep="\t")
+	write.table( file= paste( "pValuesLongitudinalModel_", t, ".txt", sep=""), dFrame, row.names=FALSE, sep="\t")
 
 #Temporarily just looking at one taxonomic level
 }
