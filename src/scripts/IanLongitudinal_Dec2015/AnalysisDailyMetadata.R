@@ -14,7 +14,8 @@ taxaLevels <- c("phylum","class","order","family","genus")
 
 for(t in taxaLevels )
 {
-        #t<-taxaLevels[[1]]
+                                        #t<-taxaLevels[[1]]
+        pdf( paste(t, "_plots.pdf", sep = ""))
       	inFileName <- paste(t,"LogNormalwithMetadataDailyR2_Edit.txt", sep="")
 	myT <-read.table(inFileName,header=TRUE,sep="\t")
 	numCols <- ncol(myT)
@@ -40,6 +41,12 @@ for(t in taxaLevels )
         noIntPValues <- list()
         BMIPValues <- list()
         EnergyPValues <- list()
+        DayBMIPV <- list()
+        DayEnergyPV <- list()
+        BMIEnergyPV <- list()
+        DayBMIPV.int <- list()
+        DayEnergyPV.int <- list()
+        BMIEnergyPV.int <- list()
 
         #Patients to colors
 	colors <- vector()
@@ -72,23 +79,48 @@ for(t in taxaLevels )
         # Should reliably do this even for the mixed case
         myT <- myT[mixedorder(myT[,1]),]
 
+        for(iter in c("A", "B", "C", "ALL"))
+           {
         for( i in 2:(ncol(myT) - 14) )
             {
+                #Right now this is done too often.
+                if(iter == "A")
+                {
+                    thisT<-myT[seq(1,67),]
+                }
+                if(iter == "B")
+                {
+                    thisT<-myT[seq(68,114),]
+                }
+                if(iter == "C")
+                {
+                    thisT<-myT[seq(115,147),]
+                }
+                if(iter == "ALL")
+                {
+                    thisT <- myT
+                }
                 #Remove from consideration rare organisms.
-		if( sum( myT[,i] >0 , na.rm=TRUE) > nrow(myT) /4 )
+		if( sum( thisT[,i] >0 , na.rm=TRUE) > nrow(thisT) /4 )
                     {
                         #Makes these components easier to work with and compute derivative values
-                        Day<-myT$Day
-                        ImputedBMI<-myT$Imputed.BMI
-                        EnergyIntake<-myT$Energy.Intake..kcal.day.
-                        taxaType <- as.numeric(myT[,i])
+                        Day<-thisT$Day
+                        ImputedBMI<-thisT$Imputed.BMI
+                        EnergyIntake<-thisT$Energy.Intake..kcal.day.
+                        taxaType <- as.numeric(thisT[,i])
                         #Compute Shannon diversity and Shannon richness via vegan
-                        #myShannon <- diversity(myT[,i])
+                        #myShannon <- diversity(thisT[,i])
                         #myRichness <-
-
-                        myFrame <- data.frame(colors, taxaType, Day, ImputedBMI, EnergyIntake)
-
-                        #Model building
+                        if(iter == "ALL")
+                        {
+                            myFrame <- data.frame(colors, taxaType, Day, ImputedBMI, EnergyIntake)
+                        }
+                        else
+                        {
+                            myFrame <- data.frame(taxaType, Day, ImputedBMI, EnergyIntake)
+                        }
+                        #Should I build an iteration over all of the models too?
+                                        #Model building
                         # Simple models without interactions
                         Daylm <- lm(taxaType ~ Day, x = TRUE)
                         BMIlm <- lm(taxaType ~ ImputedBMI, x = TRUE)
@@ -101,74 +133,101 @@ for(t in taxaLevels )
                         myNoInteractLm <- lm(taxaType ~ Day + ImputedBMI + EnergyIntake, x = TRUE)
 
                                         #Starting interactions
-                        DayBMIlm.int <- lm(taxaType ~ Day + ImputedBMI + Day*ImputedBMI, x = TRUE)
-                        DayEnergylm.int <- lm(taxaType ~ Day + EnergyIntake + Day*EnergyIntake, x = TRUE)
-                        BMIEnergylm.int <- lm(taxaType ~ ImputedBMI + EnergyIntake + ImputedBMI*EnergyIntake, x = TRUE)
+                        DayBMIlm.int <- lm(taxaType ~ Day*ImputedBMI, x = TRUE)
+                        DayEnergylm.int <- lm(taxaType ~ Day*EnergyIntake, x = TRUE)
+                        BMIEnergylm.int <- lm(taxaType ~ ImputedBMI*EnergyIntake, x = TRUE)
 
                         #All possible situation
                         fullModel <- lm(taxaType ~ Day + ImputedBMI + EnergyIntake + Day*ImputedBMI + Day*EnergyIntake + ImputedBMI*EnergyIntake + Day*ImputedBMI*EnergyIntake, x = TRUE)
                         #Suggested from fullModel
                         mySuggested <- lm(taxaType ~ Day + ImputedBMI*EnergyIntake, x = TRUE)
-
+                        modelList <- list(Daylm, BMIlm, Energylm, DayBMIlm, DayEnergylm, BMIEnergylm, myNoInteractLm, DayBMIlm.int, DayEnergylm.int, BMIEnergylm.int, fullModel, mySuggested)
                         #With cage/patient effects
-                        fullModelLME <- lme(taxaType~ Day, method="REML", random = ~1|factor(colors), data = myFrame)
-                                        # Second order in time
-                                        #time2ndOrderPseud <- lm( myT$LogPseudo ~ poly( myT$sampleDays,2), x=TRUE)
-                                        #This is probably just developed for the simple regular intervals of time points.
+                        if(iter == "ALL")
+                        {
+                            fullModelLME <- lme(taxaType~ Day, method="REML", random = ~1|factor(colors), data = myFrame)
+                            modelList <- list(Daylm, BMIlm, Energylm, DayBMIlm, DayEnergylm, BMIEnergylm, myNoInteractLm, DayBMIlm.int, DayEnergylm.int, BMIEnergylm.int, fullModel, mySuggested, fullModelLME)
+                        }
+                        # Second order in time
+                        #time2ndOrderPseud <- lm( taxaType ~ poly( Day, 2), x=TRUE)
+                        #This is probably just developed for the simple regular intervals of time points.
 
-                                        # Autocorrelation Code
-                                        #M1 <- gls( taxaType ~ EnergyIntake , data= myFrame )
-                                        #M2 <- gls( taxaType ~ EnergyIntake + Day , data= myFrame )
-                                        #M3 <- gls( taxaType ~ EnergyIntake + Day , data= myFrame , correlation = corCompSymm(form=~Day ))
-                                        #M4 <- gls( taxaType ~ EnergyIntake + Day , data= myFrame , correlation = corAR1(form=~Day ))
-                                        #M5 <- gls( taxaType ~ EnergyIntake * Day , data= myFrame  )
+                        # Autocorrelation Code
+                        #M1 <- gls( taxaType ~ EnergyIntake , data= myFrame )
+                        #M2 <- gls( taxaType ~ EnergyIntake + Day , data= myFrame )
+                        #M3 <- gls( taxaType ~ EnergyIntake + Day , data= myFrame , correlation = corCompSymm(form=~Day ))
+                        #M4 <- gls( taxaType ~ EnergyIntake + Day , data= myFrame , correlation = corAR1(form=~Day ))
+                        #M5 <- gls( taxaType ~ EnergyIntake * Day , data= myFrame  )
 
-                                        #M6 <- gls( taxaType ~ EnergyIntake + poly(Day,2) , data= myFrame )
-                                        #M7 <- gls( taxaType ~ EnergyIntake + poly(Day,2) , data= myFrame ,correlation = corCompSymm(form=~Day ))
-                                        #M8 <- gls( taxaType ~ EnergyIntake + poly(Day,2) , data= myFrame ,correlation = corAR1(form=~Day ))
+                        #M6 <- gls( taxaType ~ EnergyIntake + poly(Day,2) , data= myFrame )
+                        #M7 <- gls( taxaType ~ EnergyIntake + poly(Day,2) , data= myFrame ,correlation = corCompSymm(form=~Day ))
+                        #M8 <- gls( taxaType ~ EnergyIntake + poly(Day,2) , data= myFrame ,correlation = corAR1(form=~Day ))
 
+                        #E <- residuals( M3, type="normalized")
+                        #acf(E)
+                        #anova(M2,M3,M4, M5,M6)
+                        #anova(M6,M7,M8)
+                        #summary(M2)
+                        #summary(M4)
+                        #plot(residuals(M2), myFrame$Day)
+                        #boxplot( residuals(M2) ~ myFrame$EnergyIntake)
 
-                                        #E <- residuals( M3, type="normalized")
-                                        #acf(E)
+                        # Compiling the p-values for eventual print out.
+                        timePValues[index]<-list(summary(Daylm)$coefficients[,4][-1])
+                        BMIPValues[index]<-list(summary(BMIlm)$coefficients[,4][-1])
+                        EnergyPValues[index]<-list(summary(Energylm)$coefficients[,4][-1])
 
-                                        #anova(M2,M3,M4, M5,M6)
-                                        #anova(M6,M7,M8)
-                                        #summary(M2)
-                                        #summary(M4)
-                                        #plot(residuals(M2), myFrame$Day)
-                                        #boxplot( residuals(M2) ~ myFrame$EnergyIntake)
+                        DayBMIPV[index]<-list(summary(DayBMIlm)$coefficients[,4][-1])
+                        DayEnergyPV[index]<-list(summary(DayEnergylm)$coefficients[,4][-1])
+                        BMIEnergyPV[index]<-list(summary(BMIEnergylm)$coefficients[,4][-1])
 
+                        DayBMIPV.int[index]<-list(summary(DayBMIlm.int)$coefficients[,4][-1])
+                        DayEnergyPV.int[index]<-list(summary(DayEnergylm.int)$coefficients[,4][-1])
+                        BMIEnergyPV.int[index]<-list(summary(BMIEnergylm.int)$coefficients[,4][-1])
 
-                                        # Compiling the p-values for eventual print out.
-                                        timePValues[index]<-summary(Daylm)$coefficients[,4][[2]]
-                                        BMIPValues[index]<-list(summary(BMIlm)$coefficients[,4][-1])
-                                        EnergyPValues[index]<-list(summary(Energylm)$coefficients[,4][-1])
-                                        noIntPValues[index]<-list(summary(myNoInteractLm)$coefficients[,4][-1])
-                                        fullPValues[index]<-list(summary(fullModel)$coefficients[,4][-1])
+                        noIntPValues[index]<-list(summary(myNoInteractLm)$coefficients[,4][-1])
 
-                                        names[index] = names(myT)[i]
+                        fullPValues[index]<-list(summary(fullModel)$coefficients[,4][-1])
 
+                        names[index] = names(thisT)[i]
 
+                                        #Graphs for each of the models here...
+                        for(k in 1:length(modelList))
+                            {
+                                graphMain = paste(names(thisT)[i],"\n",
+                                    paste(names(modelList[[k]]$coefficients[-1]), sep=" "),"\n",
+                            "pValues=", paste(format(modelList[[k]]$coefficients[-1], digits=3),sep = " "),
+                        sep="")
                                         #Graphing stuff goes here.
-
-                                        index = index + 1
-
-                                        #Compute Shannon diversity and Shannon richness via vegan
-                                        #myShannon <- diversity(myT[,i])
-                                        #myRichness <-
+                        if (iter == "ALL") {
+                            par(mfrow=c(2,1))
+                            plot(Day, taxaType, col=colors, pch = 16, main = graphMain)
+                            #abline(modelList[[k]])
+                            plot(taxaType ~ factor(colors), main=graphMain)
+                        }
+                        else {
+                            plot(Day, taxaType, pch = 16, main=graphMain)
+                            #abline(modelList[[k]])
+                        }
+                    }
+                        index = index + 1
 		}
             }
 
+
         # Building the data.frames to eventually print out the p-values
-	dFrame <- data.frame( names, timePValues)
-        dFrame <- dFrame [order(dFrame$timePValues),]
-	dFrame$adjTime<-  p.adjust( dFrame$timePValues , method = "BH" )
+        DayPV.df <- data.frame(timePValues)
+        DayPV.df <- t(DayPV.df)
+        dFrame <- data.frame( names, DayPV.df)
+#        rownames(dFrame)<- names
+	dFrame$adjDay<-  p.adjust( dFrame$Day , method = "BH" )
 
         BMIPV.df <- data.frame(BMIPValues)
         BMIPV.df <- t(BMIPV.df)
         dFrameBMI <- data.frame(names, BMIPV.df)
-        rownames(dFrameBMI) <- names
-        for (m in 2:dim(dFrameBMI)[2]) {
+ #       rownames(dFrameBMI) <- names
+        for (m in 2:dim(dFrameBMI)[2])
+        {
             dFrameBMI[,dim(dFrameBMI)[2] + 1] <- p.adjust(dFrameBMI[,m], method = "BH")
             colnames(dFrameBMI)[ncol(dFrameBMI)]<-paste0("adj",colnames(dFrameBMI)[m])
         }
@@ -176,8 +235,9 @@ for(t in taxaLevels )
         EnergyPV.df <- data.frame(EnergyPValues)
         EnergyPV.df <- t(EnergyPV.df)
         dFrameEnergy <- data.frame(names, EnergyPV.df)
-        rownames(dFrameEnergy) <- names
-        for (m in 2:dim(dFrameEnergy)[2]) {
+  #      rownames(dFrameEnergy) <- names
+        for (m in 2:dim(dFrameEnergy)[2])
+        {
             dFrameEnergy[,dim(dFrameEnergy)[2] + 1] <- p.adjust(dFrameEnergy[,m], method = "BH")
             colnames(dFrameEnergy)[ncol(dFrameEnergy)]<-paste0("adj",colnames(dFrameEnergy)[m])
         }
@@ -185,8 +245,9 @@ for(t in taxaLevels )
         noIntPV.df <- data.frame(noIntPValues)
         noIntPV.df <- t(noIntPV.df)
         dFrameNoInt <- data.frame(names, noIntPV.df)
-        rownames(dFrameNoInt)<- names
-        for (m in 2:dim(dFrameNoInt)[2]) {
+   #     rownames(dFrameNoInt)<- names
+        for (m in 2:dim(dFrameNoInt)[2])
+        {
             dFrameNoInt[,dim(dFrameNoInt)[2] + 1] <- p.adjust(dFrameNoInt[,m], method = "BH")
             colnames(dFrameNoInt)[ncol(dFrameNoInt)]<-paste0("adj",colnames(dFrameNoInt)[m])
         }
@@ -194,18 +255,26 @@ for(t in taxaLevels )
         fullPV.df <- data.frame(fullPValues)
         fullPV.df <- t(fullPV.df)
         dFrameFull <- data.frame(names, fullPV.df)
-        rownames(dFrameFull) <- names
-        for (m in 2:dim(dFrameFull)[2]) {
-            dFrameFull[,dim(dFrameFull)[2] + 1] <- p.adjust(dFrameFull[,m], method = "BH")
+    #    rownames(dFrameFull) <- names
+        for (m in 2:dim(dFrameFull)[2])
+        {
+           dFrameFull[,dim(dFrameFull)[2] + 1] <- p.adjust(dFrameFull[,m], method = "BH")
            colnames(dFrameFull)[ncol(dFrameFull)]<-paste0("adj",colnames(dFrameFull)[m])
         }
 
-        #Finally, writing out the p-values and BH adjusted p-values
-	write.table(dFrame, file= paste( "pValuesLongitudinalSimpleModel_ALL_", t, ".txt", sep=""), row.names=FALSE, sep="\t")
-        write.table(dFrameBMI, file= paste( "pValuesLongBMIModel_ALL_", t, ".txt", sep=""), row.names=FALSE, sep="\t")
-        write.table(dFrameEnergy, file= paste( "pValuesLongEnergyModel_ALL_", t, ".txt", sep=""), row.names=FALSE, sep="\t")
-        write.table(dFrameNoInt, file = paste( "pValuesLongNoInt_ALL_",t, ".txt",sep=""), row.names=FALSE, sep="\t")
-        write.table(dFrameFull, file = paste("pValuesLongFullModel_ALL_", t, ".txt", sep=""), row.names=FALSE, sep="\t")
+                                        #Finally, writing out the p-values and BH adjusted p-values
+        #Still need to add in the other cases
+	write.table(dFrame, file= paste( "pValuesLongitudinalDayModel_", iter, "_", t, ".txt", sep=""), row.names=FALSE, sep="\t")
+        write.table(dFrameBMI, file= paste( "pValuesLongBMIModel_", iter, "_", t, ".txt", sep=""), row.names=FALSE, sep="\t")
+        write.table(dFrameEnergy, file= paste( "pValuesLongEnergyModel_", iter, "_", t, ".txt", sep=""), row.names=FALSE, sep="\t")
+        #write.table(BMI, file= paste( "pValuesLongitudinalDayModel_", iter, "_", t, ".txt", sep=""), row.names=FALSE, sep="\t")
+        #write.table(dFrameBMI, file= paste( "pValuesLongBMIModel_", iter, "_", t, ".txt", sep=""), row.names=FALSE, sep="\t")
+        #write.table(dFrameEnergy, file= paste( "pValuesLongEnergyModel_", iter, "_", t, ".txt", sep=""), row.names=FALSE, sep="\t")
+        write.table(dFrameNoInt, file = paste( "pValuesLongNoInt_", iter, "_", t, ".txt",sep=""), row.names=FALSE, sep="\t")
+        write.table(dFrameFull, file = paste("pValuesLongFullModel_", iter, "_", t, ".txt", sep=""), row.names=FALSE, sep="\t")
 
         #TODO Do cutoffs at the 0.05 level and print out those reduced files as well.
+
+    }
+    dev.off()
 }
