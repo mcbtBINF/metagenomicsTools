@@ -10,7 +10,7 @@ taxaLevels <- c("phylum","class","order","family","genus")
 #t <- "family"
 for(t in taxaLevels )
 {
-	pdf(paste(t,"_plots.pdf", sep="") )
+	pdf(paste(t,"_weekly_plots.pdf", sep="") )
 #	inFileName <- paste(t,"LogNormalwithMetadata.txt", sep="")
       	inFileName <- paste(t,"LogNormalwithMetadataWeekly_NearestSamplewithDay_Edit.txt", sep="")
 	myT <-read.table(inFileName,header=TRUE,sep="\t")
@@ -31,6 +31,7 @@ for(t in taxaLevels )
         PAENormPValues <- vector()
         AEEPValues <- vector()
         energyPValues <- vector()
+        patient <- vector()
 
 	colors <- vector()
 	cIndex <-1
@@ -38,13 +39,16 @@ for(t in taxaLevels )
 	{
 		if( substr(myT[j,]$Sample.ID,1,1) == "B")
 		{
-			colors[cIndex] <- "Blue"
+                    colors[cIndex] <- "Blue"
+                    patient[cIndex] <- "B"
 		} else if (substr(myT[j,]$Sample.ID,1,1) == "C" )
 		{
-			colors[cIndex] <- "Red"
+                    colors[cIndex] <- "Red"
+                    patient[cIndex] <- "C"
 		} else
 		{
-			colors[cIndex] <- "Black"
+                    colors[cIndex] <- "Black"
+                    patient[cIndex] <- "A"
 		}
 		cIndex = cIndex + 1
 
@@ -52,7 +56,7 @@ for(t in taxaLevels )
 
 	index <-1
 
-	for( i in 3:ncol(myT))
+	for( i in 3:(ncol(myT) - 14))
 	{
 		if( sum( myT[,i] >0 , na.rm=TRUE) > nrow(myT) /4 )
                     {
@@ -63,7 +67,7 @@ for(t in taxaLevels )
                                         #                        myLm <- lm( myT[,i] ~ colors *  myT$Day * myDITREE)
                                         #                        myLm <- lm( myT[,i] ~ colors *  myT$Day + myDITREE)
 #                        myLm <- lm( myT[,i] ~ colors *  myT$Day * myT$Active.EE..kcal.)
-                    myLm <- lm( myT[,i] ~ colors *  myT$Day + myT$Active.EE..kcal.)
+                    myLm <- lm( myT[,i] ~ patient *  myT$Day + myT$Active.EE..kcal.)
                     #myT$REE..kcal.day.
                     #myT$DIT..kcal.day.
                     #myT$Active.EE..kcal.
@@ -90,12 +94,12 @@ for(t in taxaLevels )
 #                    plot(myT[,i] ~ myT$Day * myDITREE, main = myLabel, col=colors)
 #                    plot(myT[,i] ~ myT$Day + myDITREE, main = myLabel, col=colors)
 #                    plot(myT[,i] ~ myT$Day * myT$Active.EE..kcal., main = myLabel, col=colors)
-                    plot(myT[,i] ~ myT$Day + myT$Active.EE..kcal., main = myLabel, col=colors)
+                     plot(myT$Day, myT[,i], main = myLabel, col=colors)
 
                      coefs <- coef(myLm)
 #                        abline( a=coefs[1] + coefs[2], b=coefs[5], col="BLUE")
  #                       abline( a=coefs[1] + coefs[3], b=coefs[6], col="RED")
-                        index = index + 1
+                     index = index + 1
 
 		}
 	}
@@ -112,5 +116,5 @@ for(t in taxaLevels )
 	dFrame$adjPatient<-  p.adjust( dFrame$patientPValues, method = "BH" )
         dFrame$adjREE <- p.adjust(dFrame$REEPValues, method = "BH" )
 
-	write.table( file= paste( "pValuesLongitudinalModel_", t, ".txt", sep=""), dFrame, row.names=FALSE, sep="\t")
+	write.table( file= paste( "pValuesLongitudinalModelWeekly_", t, ".txt", sep=""), dFrame, row.names=FALSE, sep="\t")
 }
