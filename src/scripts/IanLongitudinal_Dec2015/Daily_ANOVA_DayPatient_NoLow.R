@@ -33,11 +33,8 @@ for(t in taxaLevels )
 	colors <- vector()
         patient <- vector()
 	cIndex <- 1
-
+        # Removes samples of low sequencing depth.
         myT <- myT[-which(myT$Sample.ID %in% list(37, 45, 52, 58, 7, 9),arr.ind=TRUE),]
-
-        # Dropping so that we only consider the cases with BMI present (conservative)
-        myT <- myT[which(is.na(myT$BMI) == FALSE, arr.ind=TRUE),]
 
 	for ( j in 1: nrow(myT))
 	{
@@ -117,7 +114,7 @@ for(t in taxaLevels )
                         EnergyIntake<-myT$Energy.Intake..kcal.day.
                         taxaType <- as.numeric(myT[,i])
 
-                        DayPatient<-lm(taxaType ~  Day*patient, x = TRUE)
+                        DayPatient<-lm(taxaType ~ Day*patient, x = TRUE)
 
                         OLDDayPatientpVal[index] <- list(summary(DayPatient)$coefficients[,4][-1])
                         DayPatientpVal[index] <- list(anova(DayPatient)$"Pr(>F)"[1:3])
