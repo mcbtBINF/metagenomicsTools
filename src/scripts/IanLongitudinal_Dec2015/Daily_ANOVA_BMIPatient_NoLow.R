@@ -35,9 +35,9 @@ for(t in taxaLevels )
         patient <- vector()
 	cIndex <- 1
 
-                myT <- myT[-which(myT$Sample.ID %in% list(37, 45, 52, 58, 7, 9),arr.ind=TRUE),]
+        myT <- myT[-which(myT$Sample.ID %in% list(37, 45, 52, 58, 7, 9),arr.ind=TRUE),]
 
-         # Dropping so that we only consider the cases with BMI present (conservative)
+        # Dropping so that we only consider the cases with BMI present (conservative)
         myT <- myT[which(is.na(myT$BMI) == FALSE, arr.ind=TRUE),]
 
 	for ( j in 1: nrow(myT))
@@ -80,39 +80,12 @@ for(t in taxaLevels )
                         OLDDayPatientpVal[index] <- list(summary(DayPatient)$coefficients[,4][-1])
                         DayPatientpVal[index] <- list(anova(DayPatient)$"Pr(>F)"[1:3])
 
-                        #Compute Shannon diversity and Shannon richness via vegan
-
-                        #myShannon <- diversity(myT[,i])
-                        #myRichness <-
-                        # Second order in time
-                        #time2ndOrderPseud <- lm( taxaType ~ poly( Day, 2), x=TRUE)
-                        #This is probably just developed for the simple regular intervals of time points.
-
-                        # Autocorrelation Code
-                        #M1 <- gls( taxaType ~ EnergyIntake , data= myFrame )
-                        #M2 <- gls( taxaType ~ EnergyIntake + Day , data= myFrame )
-                        #M3 <- gls( taxaType ~ EnergyIntake + Day , data= myFrame , correlation = corCompSymm(form=~Day ))
-                        #M4 <- gls( taxaType ~ EnergyIntake + Day , data= myFrame , correlation = corAR1(form=~Day ))
-                        #M5 <- gls( taxaType ~ EnergyIntake * Day , data= myFrame  )
-
-                        #M6 <- gls( taxaType ~ EnergyIntake + poly(Day,2) , data= myFrame )
-                        #M7 <- gls( taxaType ~ EnergyIntake + poly(Day,2) , data= myFrame ,correlation = corCompSymm(form=~Day ))
-                        #M8 <- gls( taxaType ~ EnergyIntake + poly(Day,2) , data= myFrame ,correlation = corAR1(form=~Day ))
-
-                        #E <- residuals( M3, type="normalized")
-                        #acf(E)
-                        #anova(M2,M3,M4, M5,M6)
-                        #anova(M6,M7,M8)
-                        #summary(M2)
-                        #summary(M4)
-                        #plot(residuals(M2), myFrame$Day)
-                        #boxplot( residuals(M2) ~ myFrame$EnergyIntake)
-
                         # Compiling the p-values for eventual print out.
 
                         names[index] = names(myT)[i]
 
-                                        #Graphs for each of the models here...
+                        #Graphs for each of the models here...
+                        # These are uncorrected p-values
                         graphMain = paste(names(myT)[i], "\n",
                             "pBMI=", format(OLDDayPatientpVal[[index]][1], digits=3), "\n",
                         "pPatientB=", format(OLDDayPatientpVal[[index]][2], digits=3),
@@ -128,7 +101,6 @@ par(mar = c(5, 4, 6, 2))
                        index = index + 1
 		}
             }
-
 
         # Building the data.frames to eventually print out the p-values
         DayPatientPV.df <- data.frame(DayPatientpVal)
