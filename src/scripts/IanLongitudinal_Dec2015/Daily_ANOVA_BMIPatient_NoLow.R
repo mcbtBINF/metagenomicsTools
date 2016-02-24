@@ -15,7 +15,6 @@ taxaLevels <- c("phylum","class","order","family","genus")
 
 for(t in taxaLevels )
 {
-                                        #t<-taxaLevels[[1]]
         pdf( paste(t, "_BMIPatient_ANOVA_NoLow_plots.pdf", sep = ""))
       	inFileName <- paste(t, "LogNormalwithMetadataDailyR2_Edit.txt", sep="")
 	myT <-read.table(inFileName, header=TRUE, sep="\t")
@@ -27,8 +26,8 @@ for(t in taxaLevels )
 
 	names <-vector()
 
-        DayPatientpVal <- list()
-        OLDDayPatientpVal <- list()
+        BMIPatientpVal <- list()
+        OLDBMIPatientpVal <- list()
 
         #Patients to colors
 	colors <- vector()
@@ -75,10 +74,10 @@ for(t in taxaLevels )
                         EnergyIntake<-myT$Energy.Intake..kcal.day.
                         taxaType <- as.numeric(myT[,i])
 
-                        DayPatient<-lm(taxaType ~  BMI*patient, x = TRUE)
+                        BMIPatient<-lm(taxaType ~  BMI*patient, x = TRUE)
 
-                        OLDDayPatientpVal[index] <- list(summary(DayPatient)$coefficients[,4][-1])
-                        DayPatientpVal[index] <- list(anova(DayPatient)$"Pr(>F)"[1:3])
+                        OLDBMIPatientpVal[index] <- list(summary(BMIPatient)$coefficients[,4][-1])
+                        BMIPatientpVal[index] <- list(anova(BMIPatient)$"Pr(>F)"[1:3])
 
                         # Compiling the p-values for eventual print out.
 
@@ -86,35 +85,36 @@ for(t in taxaLevels )
 
                         #Graphs for each of the models here...
                         # These are uncorrected p-values
-                        graphMain = paste(names(myT)[i], "\n",
-                            "pBMI=", format(OLDDayPatientpVal[[index]][1], digits=3), "\n",
-                        "pPatientB=", format(OLDDayPatientpVal[[index]][2], digits=3),
-                            "pPatientC=", format(OLDDayPatientpVal[[index]][3], digits=3), "\n",
-                           # "pEnergyIntake=", format(OLDDayPatientpVal[[index]][4], digits=3), "\n",
-        "pBMI:PatientB=", format(OLDDayPatientpVal[[index]][4], digits=3),
-"pBMI:PatientC=", format(OLDDayPatientpVal[[index]][5], digits=3))
+                        graphMain = paste(names(myT)[i]), "\n",
+#                            "pBMI=", format(OLDBMIPatientpVal[[index]][1], digits=3), "\n",
+#                        "pPatientB=", format(OLDBMIPatientpVal[[index]][2], digits=3),
+#                            "pPatientC=", format(OLDBMIPatientpVal[[index]][3], digits=3), "\n",
+#                           # "pEnergyIntake=", format(OLDBMIPatientpVal[[index]][4], digits=3), "\n",
+#        "pBMI:PatientB=", format(OLDBMIPatientpVal[[index]][4], digits=3),
+#"pBMI:PatientC=", format(OLDBMIPatientpVal[[index]][5], digits=3))
 par(mar = c(5, 4, 6, 2))
                         plot(BMI, taxaType, col=colors, main=graphMain)
-                        abline(a = DayPatient$coef[1], b = DayPatient$coef[2])
-                        abline(a = DayPatient$coef[1] + DayPatient$coef[3], b = DayPatient$coef[5] + DayPatient$coef[2], col="BLUE")
-                        abline(a = DayPatient$coef[1] + DayPatient$coef[4], b = DayPatient$coef[6] + DayPatient$coef[2], col="RED")
+                        abline(a = BMIPatient$coef[1], b = BMIPatient$coef[2])
+                        abline(a = BMIPatient$coef[1] + BMIPatient$coef[3], b = BMIPatient$coef[5] + BMIPatient$coef[2], col="BLUE")
+                        abline(a = BMIPatient$coef[1] + BMIPatient$coef[4], b = BMIPatient$coef[6] + BMIPatient$coef[2], col="RED")
                        index = index + 1
 		}
             }
 
         # Building the data.frames to eventually print out the p-values
-        DayPatientPV.df <- data.frame(DayPatientpVal)
-        DayPatientPV.df <- t(DayPatientPV.df)
-        dFrameDayPatient <- data.frame(names, DayPatientPV.df)
-        colnames(dFrameDayPatient) <- c("names", "Day", "patient", "Day:patient")
-        for (m in 2:dim(dFrameDayPatient)[2])
+        BMIPatientPV.df <- data.frame(BMIPatientpVal)
+        BMIPatientPV.df <- t(BMIPatientPV.df)
+        modeldf <- as.data.frame(matrix(unlist(OLDBMIPatientpVal), nrow=length(OLDBMIPatientpVal), byrow = TRUE))
+        dFrameBMIPatient <- data.frame(names, BMIPatientPV.df, modeldf)
+        colnames(dFrameBMIPatient) <- c("names", "ANOVA->BMI", "ANOVA->patient", "ANOVA->BMI:patient", "BMI", "patientB", "patientC", "BMI:patientB", "BMI:patientC")
+        for (m in 2:dim(dFrameBMIPatient)[2])
         {
-           dFrameDayPatient[,dim(dFrameDayPatient)[2] + 1] <- p.adjust(dFrameDayPatient[,m], method = "BH")
-           colnames(dFrameDayPatient)[ncol(dFrameDayPatient)]<-paste0("adj",colnames(dFrameDayPatient)[m])
+           dFrameBMIPatient[,dim(dFrameBMIPatient)[2] + 1] <- p.adjust(dFrameBMIPatient[,m], method = "BH")
+           colnames(dFrameBMIPatient)[ncol(dFrameBMIPatient)]<-paste0("adj",colnames(dFrameBMIPatient)[m])
         }
 
-                                        #Finally, writing out the p-values and BH adjusted p-values
-        write.table(dFrameDayPatient, file = paste("pValuesLongPatient_BMI_ANOVA_NoLow_", t, ".txt", sep=""), row.names=FALSE, sep="\t")
+        #Finally, writing out the p-values and BH adjusted p-values
+        write.table(dFrameBMIPatient, file = paste("pValuesLongPatient_BMI_ANOVA_NoLow_", t, ".txt", sep=""), row.names=FALSE, sep="\t")
 
     dev.off()
 }
