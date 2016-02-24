@@ -117,7 +117,7 @@ for(t in taxaLevels )
                         EnergyIntake<-myT$Energy.Intake..kcal.day.
                         taxaType <- as.numeric(myT[,i])
 
-                        DayPatient<-lm(taxaType ~  BMI*patient, x = TRUE)
+                        DayPatient<-lm(taxaType ~  Day*patient, x = TRUE)
 
                         OLDDayPatientpVal[index] <- list(summary(DayPatient)$coefficients[,4][-1])
                         DayPatientpVal[index] <- list(anova(DayPatient)$"Pr(>F)"[1:3])

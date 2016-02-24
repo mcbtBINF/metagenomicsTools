@@ -82,22 +82,7 @@ for(t in taxaLevels )
                         # Compiling the p-values for eventual print out.
 
                         names[index] = names(myT)[i]
-
-                        #Graphs for each of the models here...
-                        # These are uncorrected p-values
-#                        graphMain = paste(names(myT)[i])#, "\n",
-#                            "pBMI=", format(OLDBMIPatientpVal[[index]][1], digits=3), "\n",
-#                        "pPatientB=", format(OLDBMIPatientpVal[[index]][2], digits=3),
-#                            "pPatientC=", format(OLDBMIPatientpVal[[index]][3], digits=3), "\n",
-#                           # "pEnergyIntake=", format(OLDBMIPatientpVal[[index]][4], digits=3), "\n",
-#        "pBMI:PatientB=", format(OLDBMIPatientpVal[[index]][4], digits=3),
-#"pBMI:PatientC=", format(OLDBMIPatientpVal[[index]][5], digits=3))
-#                        par(mar = c(5, 4, 6, 2))
-#                        plot(BMI, taxaType, col=colors, main=graphMain)
-#                        abline(a = BMIPatient$coef[1], b = BMIPatient$coef[2])
-#                        abline(a = BMIPatient$coef[1] + BMIPatient$coef[3], b = BMIPatient$coef[5] + BMIPatient$coef[2], col="BLUE")
-#                        abline(a = BMIPatient$coef[1] + BMIPatient$coef[4], b = BMIPatient$coef[6] + BMIPatient$coef[2], col="RED")
-                       index = index + 1
+                        index = index + 1
 		}
             }
 
@@ -114,6 +99,7 @@ for(t in taxaLevels )
            colnames(dFrameBMIPatient)[ncol(dFrameBMIPatient)]<-paste0("adj",colnames(dFrameBMIPatient)[m])
         }
 
+        # Repeat modeling so as to use corrected p-values for the graph display
 	index <-1
 
         # Should reliably do this even for the mixed case
@@ -141,20 +127,22 @@ for(t in taxaLevels )
                         names[index] = names(myT)[i]
 
                         #Graphs for each of the models here...
-                        # These are uncorrected p-values
+                        # These are corrected p-values now
                         graphMain = paste(names(myT)[i], "\n",
-                            "pBMI=", format(dFrameBMIPatient[index, 13], digits=3), "\n",
+                        "pBMI=", format(dFrameBMIPatient[index, 13], digits=3), "\n",
                         "pPatientB=", format(dFrameBMIPatient[index, 14], digits=3),
-                            "pPatientC=", format(dFrameBMIPatient[index, 15], digits=3), "\n",
-#                           # "pEnergyIntake=", format(dFrameBMIPatient(index,[4], digits=3), "\n",
-        "pBMI:PatientB=", format(dFrameBMIPatient[index,16], digits=3),
-"pBMI:PatientC=", format(dFrameBMIPatient[index, 17], digits=3))
+                        "pPatientC=", format(dFrameBMIPatient[index, 15], digits=3), "\n",
+                        #"pEnergyIntake=", format(dFrameBMIPatient(index,[4], digits=3), "\n",
+                        "pBMI:PatientB=", format(dFrameBMIPatient[index,16], digits=3),
+                        "pBMI:PatientC=", format(dFrameBMIPatient[index, 17], digits=3))
                         par(mar = c(5, 4, 6, 2))
+
                         plot(BMI, taxaType, col=colors, main=graphMain)
                         abline(a = BMIPatient$coef[1], b = BMIPatient$coef[2])
                         abline(a = BMIPatient$coef[1] + BMIPatient$coef[3], b = BMIPatient$coef[5] + BMIPatient$coef[2], col="BLUE")
                         abline(a = BMIPatient$coef[1] + BMIPatient$coef[4], b = BMIPatient$coef[6] + BMIPatient$coef[2], col="RED")
-                       index = index + 1
+
+                        index = index + 1
 		}
             }
 
