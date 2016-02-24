@@ -10,7 +10,7 @@ taxaLevels <- c("phylum","class","order","family","genus")
 #t <- "family"
 for(t in taxaLevels )
 {
-	pdf(paste(t,"_weekly_plots.pdf", sep="") )
+	pdf(paste(t,"_DITREE_weekly_plots.pdf", sep="") )
 #	inFileName <- paste(t,"LogNormalwithMetadata.txt", sep="")
       	inFileName <- paste(t,"LogNormalwithMetadataWeekly_NearestSamplewithDay_Edit.txt", sep="")
 	myT <-read.table(inFileName,header=TRUE,sep="\t")
@@ -67,7 +67,7 @@ for(t in taxaLevels )
                                         #                        myLm <- lm( myT[,i] ~ colors *  myT$Day * myDITREE)
                                         #                        myLm <- lm( myT[,i] ~ colors *  myT$Day + myDITREE)
 #                        myLm <- lm( myT[,i] ~ colors *  myT$Day * myT$Active.EE..kcal.)
-                    myLm <- lm( myT[,i] ~ patient *  myT$Day + myT$Active.EE..kcal.)
+                    myLm <- lm( myT[,i] ~ patient *  myT$Day + myDITREE)
                     #myT$REE..kcal.day.
                     #myT$DIT..kcal.day.
                     #myT$Active.EE..kcal.
@@ -115,6 +115,7 @@ for(t in taxaLevels )
 	dFrame$adjTime<-  p.adjust( dFrame$REEPValues , method = "BH" )
 	dFrame$adjPatient<-  p.adjust( dFrame$patientPValues, method = "BH" )
         dFrame$adjREE <- p.adjust(dFrame$REEPValues, method = "BH" )
+        dFrame$adjInteraction <- p.adjust(dFrame$interactionPValues, method= "BH")
 
-	write.table( file= paste( "pValuesLongitudinalModelWeekly_", t, ".txt", sep=""), dFrame, row.names=FALSE, sep="\t")
+	write.table( file= paste( "pValuesLongitudinalModelWeekly_DITREE_", t, ".txt", sep=""), dFrame, row.names=FALSE, sep="\t")
 }
