@@ -15,7 +15,7 @@ taxaLevels <- c("phylum","class","order","family","genus")
 
 for(t in taxaLevels )
 {
-        pdf( paste(t, "_DayPatient_ANOVA_NoLow_plots.pdf", sep = ""))
+        pdf( paste(t, "_DayPatient_ANOVA_NoLow_JustNameplots.pdf", sep = ""))
       	inFileName <- paste(t, "LogNormalwithMetadataDailyR2_Edit.txt", sep="")
 	myT <-read.table(inFileName, header=TRUE, sep="\t")
 	numCols <- ncol(myT)
