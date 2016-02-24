@@ -133,7 +133,7 @@ for(t in taxaLevels )
                         "pEnergyIntake:PatientC=", format(dFrameEnergyIntakePatient[index, 17], digits=3))
                         par(mar = c(5, 4, 6, 2))
 
-                        plot(BMI, taxaType, col=colors, main=graphMain)
+                        plot(EnergyIntake, taxaType, col=colors, main=graphMain)
                         abline(a = EnergyIntakePatient$coef[1], b = EnergyIntakePatient$coef[2])
                         abline(a = EnergyIntakePatient$coef[1] + EnergyIntakePatient$coef[3], b = EnergyIntakePatient$coef[5] + EnergyIntakePatient$coef[2], col="BLUE")
                         abline(a = EnergyIntakePatient$coef[1] + EnergyIntakePatient$coef[4], b = EnergyIntakePatient$coef[6] + EnergyIntakePatient$coef[2], col="RED")
