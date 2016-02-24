@@ -85,14 +85,14 @@ for(t in taxaLevels )
 
                         #Graphs for each of the models here...
                         # These are uncorrected p-values
-                        graphMain = paste(names(myT)[i]), "\n",
+                        graphMain = paste(names(myT)[i])#, "\n",
 #                            "pBMI=", format(OLDBMIPatientpVal[[index]][1], digits=3), "\n",
 #                        "pPatientB=", format(OLDBMIPatientpVal[[index]][2], digits=3),
 #                            "pPatientC=", format(OLDBMIPatientpVal[[index]][3], digits=3), "\n",
 #                           # "pEnergyIntake=", format(OLDBMIPatientpVal[[index]][4], digits=3), "\n",
 #        "pBMI:PatientB=", format(OLDBMIPatientpVal[[index]][4], digits=3),
 #"pBMI:PatientC=", format(OLDBMIPatientpVal[[index]][5], digits=3))
-par(mar = c(5, 4, 6, 2))
+                        par(mar = c(5, 4, 6, 2))
                         plot(BMI, taxaType, col=colors, main=graphMain)
                         abline(a = BMIPatient$coef[1], b = BMIPatient$coef[2])
                         abline(a = BMIPatient$coef[1] + BMIPatient$coef[3], b = BMIPatient$coef[5] + BMIPatient$coef[2], col="BLUE")
