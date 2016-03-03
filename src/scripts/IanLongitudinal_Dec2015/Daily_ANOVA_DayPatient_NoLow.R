@@ -134,7 +134,7 @@ for(t in taxaLevels )
                         "pDay:PatientC=", format(dFrameDayPatient[index, 17], digits=3))
                         par(mar = c(5, 4, 6, 2))
 
-                        plot(Day, taxaType, col=colors, main=graphMain)
+                        plot(Day, taxaType, col=colors, main=graphMain, pch=16)
                         abline(a = DayPatient$coef[1], b = DayPatient$coef[2])
                         abline(a = DayPatient$coef[1] + DayPatient$coef[3], b = DayPatient$coef[5] + DayPatient$coef[2], col="BLUE")
                         abline(a = DayPatient$coef[1] + DayPatient$coef[4], b = DayPatient$coef[6] + DayPatient$coef[2], col="RED")

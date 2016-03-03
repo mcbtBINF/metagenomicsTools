@@ -100,15 +100,11 @@ for(t in taxaLevels )
         # Repeat modeling so as to use corrected p-values for the graph display
 	index <-1
 
-        # Should reliably do this even for the mixed case
         myT <- myT[mixedorder(myT[,1]),]
-        #Remove the low depth samples.
         for( i in 2:(ncol(myT) - 14) )
             {
-                #Remove from consideration rare organisms.
 		if( sum( myT[,i] >0 , na.rm=TRUE) > nrow(myT) /4 )
                     {
-                        #Makes these components easier to work with and compute derivative values
                         Day<-myT$Day
                         ImputedBMI<-myT$Imputed.BMI
                         BMI <- myT$BMI
@@ -120,12 +116,10 @@ for(t in taxaLevels )
                         OLDDayPatientpVal[index] <- list(summary(DayPatient)$coefficients[,4][-1])
                         DayPatientpVal[index] <- list(anova(DayPatient)$"Pr(>F)"[1:3])
 
-                        # Compiling the p-values for eventual print out.
-
                         names[index] = names(myT)[i]
 
-                        #Graphs for each of the models here...
-                        # These are corrected p-values now
+                        ## Graphs for each of the models here...
+                        ## These are corrected p-values now
                         graphMain = paste(names(myT)[i], "\n",
                         "pDay=", format(dFrameDayPatient[index, 13], digits=3), "\n",
                         "pPatientB=", format(dFrameDayPatient[index, 14], digits=3),
