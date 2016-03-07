@@ -11,6 +11,10 @@ library("vegan")
 setwd("/Users/mbrown67/Documents/Fodor/Datasets/MarkExperiment/Pooled/")
 
 taxaLevels <- c( "phylum", "class", "order", "family", "genus")
+indexS <- 1
+ShannonP <- list()
+ShannonSummary <- list()
+
 # All of this data should be present in any analysis, so there is no reason to make it optional or subject to a switch/case statement.
 
 #inforShannon<-read.table("otuTaxaAsColumnsLogNormWithMetadata.txt.temp", header=TRUE, sep="\t")
@@ -42,9 +46,6 @@ for(taxa in taxaLevels )
                                         # Have to manually drop these for some reason
         manualDrop <- c("Neg_S40_L001_R1_001", "PCR1Neg_S65_L001_R1_001")
         myT<-myT[!(myT$MatchFile %in% manualDrop),]
-
-        ## Dropping the protype experiment as it is from a different mouse source.
-        ## Other analyses support this decision.
         labDrop <- c("Harlan Labs")
         myT<-myT[!(myT$MouseOrigin %in% labDrop),]
 	# our initial model not worrying about confounders except cage
@@ -65,6 +66,27 @@ for(taxa in taxaLevels )
         sexConf <- vector()
 	index <- 1
 	pdf( paste(taxa, "_testplots.pdf", sep=""))
+##         myT$Shannon <- apply(myT[,2:(ncol(myT)-14)],1,diversity)
+##         Shannon <- myT$Shannon
+##         Day <- myT$Day
+##         ImputedBMI<-myT$Imputed.BMI
+##         EnergyIntake<-myT$Energy.Intake..kcal.day.
+
+##         Shannonlm <- lm(Shannon ~ Day*patient, x = TRUE)
+##         #ShannonlmBMI <- lm(Shannon ~ ImputedBMI*patient, x = TRUE)
+##         #ShannonlmEnergy <- lm(Shannon ~ EnergyIntake*patient, x = TRUE)
+##         ShannonP[indexS] <- list(summary(Shannonlm)$coefficients[,4][-1])
+## #        ShannonSummary[indexS]<-summary(Shannonlm)
+
+## #        names[indexS] = names(myT)[i]
+
+##         indexS <- indexS + 1
+
+##         # Building the data.frames to eventually print out the p-values
+##         DayPatientPV.df <- data.frame(ShannonP)
+##         DayPatientPV.df <- t(DayPatientPV.df)
+##         dFrameDayPatient <- DayPatientPV.df
+
 
 	for( i in 2:(ncol(myT) - numMetadataCols))
  		if( sum(myT[,i] != 0 ) > nrow(myT) / 4 )
@@ -87,19 +109,11 @@ for(taxa in taxaLevels )
  			par(mfrow=c(3,1),
                             oma = c(1,1,0,0) + 0.1,
                             mar = c(1,4,2.5,0) + 0.1)
-
-                        plot(as.numeric(factor(multiWay)), bug, col=as.numeric(batch), pch=16, xlab= "Acute_9, Chronic_14, Chronic_19, Control")
-                        plot(jitter(as.numeric(sl), .3), bug, col=as.numeric(batch), pch=16 + as.numeric(treatment), xlab= "14, 19, 9")
-                        plot(as.numeric(batch), bug, col=as.numeric(sex), pch=16, xlab="Which batch?")
-                        plot(as.numeric(myT$SpreadsheetGrouping), bug, xlab="Spreadsheet Group number")
-
-                        plot(as.numeric(date), bug, xlab="Spreadsheet Group number")
-
+                        plot(as.numeric(factor(multiWay)), bug, col=as.numeric(batch), pch=16)
+                        plot(jitter(as.numeric(sl),.3), bug, col=as.numeric(batch), pch=16 + as.numeric(treatment))
+                        plot(as.numeric(batch), bug, col=as.numeric(sex), pch=16)
 
                         index=index+1
-
-                        ## Try for a plot with abline from a simple linear fit
-                    }
-
+		}
         dev.off()
 }
