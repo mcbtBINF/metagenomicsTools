@@ -43,6 +43,10 @@ for(groupNum in 2:8){
         myT<-myT[!(myT$MatchFile %in% manualDrop),]
 
         myT<-myT[myT$SpreadsheetGrouping == groupNum,]
+        lowSeqDrop <- c("04-55_S32_L001_R1_001")
+        myT<-myT[!(myT$MatchFile %in% lowSeqDrop),]
+
+
         ## print("Got through Processing")
 
 	# our initial model not worrying about confounders except cage
@@ -60,8 +64,11 @@ for(groupNum in 2:8){
 	pValuesExperiment <- vector()
         acConf <- vector()
         sexConf <- vector()
+        time <- vector()
+        pValuesTime <- vector()
+
 	index <- 1
-	pdf( paste(taxa, "_", groupNum,"_Treatment_batch_noCage_boxplots.pdf", sep=""))
+	pdf( paste(taxa, "_", groupNum,"_Treatment_batch_eachGroup_boxplots.pdf", sep=""))
         print(groupNum)
 	for( i in 2:(ncol(myT)-numMetadataCols))
  		if( sum(myT[,i] != 0 ) > nrow(myT) / 4 )
@@ -72,6 +79,7 @@ for(groupNum in 2:8){
 			cage <- myT$Cage
                         batch <- myT$Sample_Project
                         date <- myT$Date
+                        time <- myT$StressLength
                         mo <- myT$MouseOrigin
                         treatment <- myT$Treatment
 
@@ -79,39 +87,41 @@ for(groupNum in 2:8){
 
                         fullModel <- lm(bug ~ treatment + batch, x=TRUE)
 
-###			fullModel <- gls( bug~   treatment + batch, method="REML",correlation=corCompSymm(form=~1|factor(cage)), data = myFrame )
-###                        reducedModel <- gls( bug~  treatment, method="REML", data = myFrame )
-###                        fullModelLME <- lme(bug~  treatment, method="REML", random = ~1|factor(cage), data = myFrame)
+			##fullModel <- gls( bug~   treatment + batch, method="REML",correlation=corCompSymm(form=~1|factor(cage)), data = myFrame )
+                        ##reducedModel <- gls( bug~  treatment + batch, method="REML", data = myFrame )
+                        ##fullModelLME <- lme(bug~  treatment + batch, method="REML", random = ~1|factor(cage), data = myFrame)
                         ## It seems like reducing the anova calls could speed things up a bit
-
-      			pValuesTreatment[index] <- anova(fullModel)$"Pr(>F)"[1]
+                        pValuesTreatment[index] <- anova(fullModel)$"Pr(>F)"[1]
+                        pValuesBatch[index] <- anova(fullModel)$"Pr(>F)"[2]
+      			##pValuesTreatment[index] <- anova(fullModelLME)$"p-value"[2]
+                        ##pValuesTime[index] <- anova(fullModelLME)$"p-value"[5]
 			## pValuesSex[index] <- anova(fullModelLME)$"p-value"[5]
 			## pValuesExperiment[index] <- anova(fullModelLME)$"p-value"[5]
                         ## pValuesStressLength[index] <- anova(fullModel)$"Pr(>F)"[2]
-                        pValuesBatch[index] <- anova(fullModel)$"Pr(>F)"[2]
+                        ##pValuesBatch[index] <- anova(fullModelLME)$"p-value"[3]
 
                         ## Why do you mix model functions here?
 
-##			pValuesCage[index] <-  anova(fullModelLME, reducedModel)$"p-value"[2]
-##			iccCage[index]<- coef(fullModel$modelStruct[1]$corStruct,unconstrained=FALSE)[[1]]
+			## pValuesCage[index] <-  anova(fullModelLME, reducedModel)$"p-value"[2]
+			## iccCage[index]<- coef(fullModel$modelStruct[1]$corStruct,unconstrained=FALSE)[[1]]
 
 			names[index] = names(myT)[i]
 
 			graphMain =  paste( names(myT)[i], "\n",
                             ## " pSex=", format( pValuesSex[index], digits=3),
                             ## " pAcuteChronic= ", format( pValuesAcuteChronic[index],digits=3),
-                            " pBatch= ", format(pValuesBatch[index], digits=3), "\n",
-                            " pTreatment= ", format(pValuesTreatment[index], digits=3)
+                            " pBatch= ", format(pValuesBatch[index], digits=3),
+                            " pTreatment= ", format(pValuesTreatment[index], digits=3)#, "\n",
                             ## " pExperiment= ", format(pValuesExperiment[index], digits=3),
-##                            " pCage= " , format( pValuesCage[index], digits=3),
-                            ##                            " icc= " , format( iccCage[index], digits=3 ), sep=""
+                            ##" pCage= " , format( pValuesCage[index], digits=3),
+                            ##" icc= " , format( iccCage[index], digits=3 ), sep=""
                                            )
-			par(mfrow=c(3,1),
+			par(mfrow=c(2,1),
                             oma = c(1,1,0,0) + 0.1,
                             mar = c(1,4,2.5,0) + 0.1)
 
-			plot( bug ~ factor(sex), ylab = names[index],main = graphMain )
-                        points(factor(sex), bug)
+			plot( bug ~ factor(batch), ylab = names[index],main = graphMain )
+                        points(factor(batch), bug)
 
 			## plot ( bug ~ factor(ac) )
                         ## points(factor(ac), bug)
@@ -122,12 +132,12 @@ for(groupNum in 2:8){
                         ## plot ( bug ~ factor(treatment) )
                         ## points(factor(treatment), bug)
 
-                        plot( bug ~ factor(cage), ylab=names[index])
-                        points(factor(cage), bug)
-			index=index+1
+                        ## plot( bug ~ factor(cage), ylab=names[index])
+                        ## points(factor(cage), bug)
+			index = index+1
 		}
 
-	dFrame <- data.frame( names, pValuesTreatment, pValuesBatch)#, iccCage)#, #pValuesTreatment)#, pValuesBatch)#, pValuesExperiment)
+	dFrame <- data.frame( names, pValuesTreatment, pValuesBatch)#, pValuesCage, iccCage)#, #pValuesTreatment)#, pValuesBatch)#, pValuesExperiment)
 
 	## dFrame <- dFrame[order(pValuesAcuteChronic),]
 	## dFrame$adjustedAcuteChronic <- p.adjust( dFrame$pValuesAcuteChronic, method = "BH" )
@@ -135,17 +145,15 @@ for(groupNum in 2:8){
         dFrame$adjustedBatch<- p.adjust( dFrame$pValuesBatch, method = "BH" )
         ## dFrame$adjustedTreatment<- p.adjust( dFrame$pValuesTreatment, method = "BH" )
 
-	##dFrame$adjustedCage <- p.adjust( dFrame$pValuesCage, method = "BH" )
+##	dFrame$adjustedCage <- p.adjust( dFrame$pValuesCage, method = "BH" )
 	## dFrame$adjustedExperiment <- p.adjust( dFrame$pValuesExperiment, method = "BH" )
 
-        write.table(dFrame, file=paste("pValuesForTaxa_bug_treatment_batch_nocage_eachgroup_", taxa, "_", groupNum, ".txt",sep=""),
+        write.table(dFrame, file=paste("pValuesForTaxa_bug_treatment_batch_eachgroup_", taxa, "_", groupNum, ".txt",sep=""),
                     sep="\t",row.names=FALSE)
 
-        keepVector <- grep("adj", names(dFrame))
-        sigdFrame <-dFrame[which(dFrame[,keepVector] < 0.05,arr.ind=TRUE),]
-        write.table(sigdFrame, file=paste("pValuesForTaxa_bug_treatment_batch_nocage_eachgroup_sig_", taxa, "_", groupNum,".txt",sep=""),
-                    sep="\t",row.names=FALSE)
-
+##        keepVector <- grep("adj", names(dFrame))
+##        sigdFrame <-dFrame[which(dFrame[,keepVector] < 0.05,arr.ind=TRUE),]
+##        write.table(sigdFrame, file=paste("pValuesForTaxa_bug_treatment_batch_nocage_eachgroup_sig_", taxa, "_", groupNum,".txt",sep=""), sep="\t",row.names=FALSE)
 
         dev.off()
     }

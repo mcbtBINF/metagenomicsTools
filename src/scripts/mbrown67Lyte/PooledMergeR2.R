@@ -2,7 +2,7 @@ rm(list=ls())
 
 setwd("/Users/mbrown67/Documents/Fodor/Datasets/MarkExperiment/Pooled/")
 
-myMetadata1 <- read.csv("NewPooledR2.csv", header=TRUE)
+myMetadata1 <- read.csv("UpdatePooledR2.csv", header=TRUE)
 
 #myMetadata2 <- read.csv("Lyte_Batch04_Run02_repeat-27418842/Lyte_Batch04_Run02_repeat_sample_sheet_WITHSEQ.csv", header=TRUE, comment.char="?")
 
