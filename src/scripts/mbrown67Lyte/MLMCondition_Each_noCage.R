@@ -33,8 +33,8 @@ for(taxa in taxaLevels )
         myT<-myT[!(myT$Sample_ID %in% removeControls),]
         removetrs<-c("04_125_tr", "04_101_tr", "04_103_tr", "04_74_tr", "04_70_tr", "04_40_tr", "04_41_tr", "04_84_tr")
         myT<-myT[!(myT$Sample_ID %in% removetrs),]
-        removeLow<-c("04-55_S32_L001_R1_001")
-        myT<-myT[!(myT$MatchFile %in% removeLow),]
+##        removeLow<-c("04-55_S32_L001_R1_001")
+##        myT<-myT[!(myT$MatchFile %in% removeLow),]
         removeDups<-c("04-04_S63_L001_R1_001")
                                         #Somewhat arbitrarily here
         myT<-myT[!(myT$MatchFile %in% removeDups),]
@@ -43,7 +43,7 @@ for(taxa in taxaLevels )
         manualDrop <- c("Neg_S40_L001_R1_001", "PCR1Neg_S65_L001_R1_001")
         myT<-myT[!(myT$MatchFile %in% manualDrop),]
         labDrop <- c("Harlan Labs")
-        myT<-myT[!(myT$MouseOrigin %in% labDrop),]
+#        myT<-myT[!(myT$MouseOrigin %in% labDrop),]
 #print("Got through Processing")
 	# our initial model not worrying about confounders except cage
         myT$Condition[which(myT$Treatment == "Ctrl", arr.ind = TRUE)]<-"Control"
@@ -62,9 +62,9 @@ for(taxa in taxaLevels )
         acConf <- vector()
         sexConf <- vector()
 	index <- 1
-	pdf( paste(taxa, "Conditionboxplots.pdf", sep=""))
+	pdf( paste(taxa, "ConditionAcuteboxplots_NoCage.pdf", sep=""))
 
-        myT <- myT[myT$Sex == "F",]
+        myT <- myT[myT$StressLength==19,]
 
 	for( i in 2:(ncol(myT)-numMetadataCols))
  		if( sum(myT[,i] != 0 ) > nrow(myT) / 4 )
@@ -80,11 +80,12 @@ for(taxa in taxaLevels )
  #                      shannon <- myT$shannon
                         myFrame <- data.frame(bug, ac, sex, cage, treatment, batch, date, mo)
 
-			fullModel <- gls( bug~   ac, method="REML",correlation=corCompSymm(form=~1|factor(cage)),				data = myFrame )
-                        reducedModel <- gls( bug~  ac, method="REML", data = myFrame )
+##			fullModel <- gls( bug~   ac, method="REML",correlation=corCompSymm(form=~1|factor(cage)),				data = myFrame )
+##                        reducedModel <- gls( bug~  ac, method="REML", data = myFrame )
 #                        confCheckModel <- gls (bug~ sex, method="REML",correlation=corCompSymm(form=~1|factor(cage)),				data = myFrame )
-                        fullModelLME <- lme(bug~  ac, method="REML", random = ~1|factor(cage), data = myFrame)
+##                        fullModelLME <- lme(bug~  ac, method="REML", random = ~1|factor(cage), data = myFrame)
 
+                        fullModelLME <- lm(bug ~ ac, data=myFrame)
 #                        acConf[index]<-paste((confCheckModel$coefficients["acC"] - fullModel$coefficients["acC"]) / confCheckModel$coefficients["acC"], sep=" ")
 
 #                        sexConf[index]<-paste((confCheckModel$coefficients["sexM"] - fullModel$coefficients["sexM"]) / confCheckModel$coefficients["sexM"], sep=" ")
@@ -92,28 +93,28 @@ for(taxa in taxaLevels )
 
                                         # It seems like reducing the anova calls could speed things up a bit
                         # Remember to revert back to an earlier commit here
-			pValuesAcuteChronic[index] <- anova(fullModelLME)$"p-value"[2]
-			pValuesSex[index] <- anova(fullModelLME)$"p-value"[5]
-			pValuesExperiment[index] <- anova(fullModelLME)$"p-value"[5]
-                        pValuesBatch[index] <- anova(fullModelLME)$"p-value"[5]
-                        pValuesTreatment[index] <- anova(fullModelLME)$"p-value"[5]
+			pValuesAcuteChronic[index] <- anova(fullModelLME)$"Pr(>F)"[1]
+##			pValuesSex[index] <- anova(fullModelLME)$"p-value"[5]
+##			pValuesExperiment[index] <- anova(fullModelLME)$"p-value"[5]
+##                        pValuesBatch[index] <- anova(fullModelLME)$"p-value"[5]
+##                        pValuesTreatment[index] <- anova(fullModelLME)$"p-value"[5]
                        # pValuesShannon[index] <- anova(fullModelLME)$"p-value"[5]
                                         #Why do you mix model functions here?
-			pValuesCage[index] <-  anova(fullModelLME, reducedModel)$"p-value"[2]
-			iccCage[index]<- coef(fullModel$modelStruct[1]$corStruct,unconstrained=FALSE)[[1]]
+##			pValuesCage[index] <-  anova(fullModelLME, reducedModel)$"p-value"[2]
+##			iccCage[index]<- coef(fullModel$modelStruct[1]$corStruct,unconstrained=FALSE)[[1]]
 
 			names[index] = names(myT)[i]
 
 			graphMain =  paste( names(myT)[i], "\n",
 #                            " pSex=", format( pValuesSex[index], digits=3),
-                            " pCondition= ", format( pValuesAcuteChronic[index],digits=3),
+                            " pCondition= ", format( pValuesAcuteChronic[index],digits=3))#,
 #                            " pBatch= ", format(pValuesBatch[index], digits=3), "\n",
 #                            " pTreatment= ", format(pValuesTreatment[index], digits=3),
 #                            " pExperiment= ", format(pValuesExperiment[index], digits=3),
                             #" pShannon= ", format(pValuesShannon[index], digits=3),
                             #" pKeptCounts= ", format(pValuesKeptCounts[index], digits=3),
-                            " pCage= " , format( pValuesCage[index], digits=3),
-                            " icc= " , format( iccCage[index], digits=3 ), sep="")
+##                            " pCage= " , format( pValuesCage[index], digits=3),
+##                            " icc= " , format( iccCage[index], digits=3 ), sep="")
 			par(mfrow=c(3,1),
                             oma = c(1,1,0,0) + 0.1,
                             mar = c(1,4,2.5,0) + 0.1)
@@ -135,7 +136,7 @@ for(taxa in taxaLevels )
 			index=index+1
 		}
 
-	dFrame <- data.frame( names, pValuesAcuteChronic, pValuesCage, iccCage)#, #pValuesTreatment)#, pValuesBatch)#, pValuesExperiment)
+	dFrame <- data.frame( names, pValuesAcuteChronic)#, pValuesCage, iccCage)#, #pValuesTreatment)#, pValuesBatch)#, pValuesExperiment)
 #dropped pValuesSex
 #	dFrame <- dFrame[order(pValuesAcuteChronic),]
 	dFrame$adjustedAcuteChronic <- p.adjust( dFrame$pValuesAcuteChronic, method = "BH" )
@@ -143,10 +144,10 @@ for(taxa in taxaLevels )
 #        dFrame$adjustedBatch<- p.adjust( dFrame$pValuesBatch, method = "BH" )
 #       dFrame$adjustedTreatment<- p.adjust( dFrame$pValuesTreatment, method = "BH" )
 
-	dFrame$adjustedCage <- p.adjust( dFrame$pValuesCage, method = "BH" )
+#	dFrame$adjustedCage <- p.adjust( dFrame$pValuesCage, method = "BH" )
 #	dFrame$adjustedExperiment <- p.adjust( dFrame$pValuesExperiment, method = "BH" )
 
-        write.table(dFrame, file=paste("pValuesForTaxa_bug_condition_cage_", taxa, ".txt",sep=""),
+        write.table(dFrame, file=paste("pValuesForTaxa_bug_condition_Nocage_acute", taxa, ".txt",sep=""),
                     sep="\t",row.names=FALSE)
 
         dev.off()

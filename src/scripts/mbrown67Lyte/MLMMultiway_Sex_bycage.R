@@ -33,8 +33,8 @@ for(taxa in taxaLevels )
         myT<-myT[!(myT$Sample_ID %in% removeControls),]
         removetrs<-c("04_125_tr", "04_101_tr", "04_103_tr", "04_74_tr", "04_70_tr", "04_40_tr", "04_41_tr", "04_84_tr")
         myT<-myT[!(myT$Sample_ID %in% removetrs),]
-        removeLow<-c("04-55_S32_L001_R1_001")
-        myT<-myT[!(myT$MatchFile %in% removeLow),]
+##        removeLow<-c("04-55_S32_L001_R1_001")
+##        myT<-myT[!(myT$MatchFile %in% removeLow),]
         removeDups<-c("04-04_S63_L001_R1_001")
                                         #Somewhat arbitrarily here
         myT<-myT[!(myT$MatchFile %in% removeDups),]
@@ -44,10 +44,14 @@ for(taxa in taxaLevels )
         myT<-myT[!(myT$MatchFile %in% manualDrop),]
         labDrop <- c("Harlan Labs")
         myT<-myT[!(myT$MouseOrigin %in% labDrop),]
+        lowSeqDrop <- c("04-55_S32_L001_R1_001")
+        myT<-myT[!(myT$MatchFile %in% lowSeqDrop),]
+
 #print("Got through Processing")
 	# our initial model not worrying about confounders except cage
         myT$Condition[which(myT$Treatment == "Ctrl", arr.ind = TRUE)]<-"Control"
 	names <- vector()
+        pValuesMultiway<-vector()
 	pValuesSex<- vector()
 	pValuesAcuteChronic<- vector()
 	pValuesCage<- vector()
@@ -60,11 +64,12 @@ for(taxa in taxaLevels )
 	# WARNING:  EXPERIMENT IS CONFOUNDED WITH AC  + SEX - INTERPRET WITH CAUTION!!!!!
 	pValuesExperiment <- vector()
         acConf <- vector()
+        multiWay <- vector()
         sexConf <- vector()
 	index <- 1
-	pdf( paste(taxa, "Conditionboxplots.pdf", sep=""))
+	pdf( paste(taxa, "_multiWay_4_byCage.pdf", sep=""))
 
-        myT <- myT[myT$Sex == "F",]
+#        myT <- myT[myT$Sex == "M",]
 
 	for( i in 2:(ncol(myT)-numMetadataCols))
  		if( sum(myT[,i] != 0 ) > nrow(myT) / 4 )
@@ -73,17 +78,20 @@ for(taxa in taxaLevels )
 			ac <- myT$Condition
 			sex <- myT$Sex
 			cage <- myT$Cage
-                        batch <- myT$Sample_Project
+                        batch <- myT$Sample_Plate
                         date <- myT$Date
                         mo <- myT$MouseOrigin
+                        group <- myT$SpreadsheetGrouping
                         treatment <- myT$Treatment
+                        multiWay <- paste(ac, myT$StressLength)
+                        multiWay[which(myT$Treatment == "Ctrl", arr.ind = TRUE)]<-"Control"
  #                      shannon <- myT$shannon
-                        myFrame <- data.frame(bug, ac, sex, cage, treatment, batch, date, mo)
+                        myFrame <- data.frame(bug, ac, multiWay, sex, cage, treatment, batch, date, mo, group)
 
-			fullModel <- gls( bug~   ac, method="REML",correlation=corCompSymm(form=~1|factor(cage)),				data = myFrame )
-                        reducedModel <- gls( bug~  ac, method="REML", data = myFrame )
+			fullModel <- gls( bug~   multiWay, method="REML",correlation=corCompSymm(form=~1|factor(cage)),				data = myFrame )
+                        reducedModel <- gls( bug~  multiWay, method="REML", data = myFrame )
 #                        confCheckModel <- gls (bug~ sex, method="REML",correlation=corCompSymm(form=~1|factor(cage)),				data = myFrame )
-                        fullModelLME <- lme(bug~  ac, method="REML", random = ~1|factor(cage), data = myFrame)
+                        fullModelLME <- lme(bug~  multiWay, method="REML", random = ~1|factor(cage), data = myFrame)
 
 #                        acConf[index]<-paste((confCheckModel$coefficients["acC"] - fullModel$coefficients["acC"]) / confCheckModel$coefficients["acC"], sep=" ")
 
@@ -99,6 +107,7 @@ for(taxa in taxaLevels )
                         pValuesTreatment[index] <- anova(fullModelLME)$"p-value"[5]
                        # pValuesShannon[index] <- anova(fullModelLME)$"p-value"[5]
                                         #Why do you mix model functions here?
+                        ## Just rename it later
 			pValuesCage[index] <-  anova(fullModelLME, reducedModel)$"p-value"[2]
 			iccCage[index]<- coef(fullModel$modelStruct[1]$corStruct,unconstrained=FALSE)[[1]]
 
@@ -106,32 +115,32 @@ for(taxa in taxaLevels )
 
 			graphMain =  paste( names(myT)[i], "\n",
 #                            " pSex=", format( pValuesSex[index], digits=3),
-                            " pCondition= ", format( pValuesAcuteChronic[index],digits=3),
+                            " pConditionMultiway= ", format( pValuesAcuteChronic[index],digits=3),
 #                            " pBatch= ", format(pValuesBatch[index], digits=3), "\n",
 #                            " pTreatment= ", format(pValuesTreatment[index], digits=3),
 #                            " pExperiment= ", format(pValuesExperiment[index], digits=3),
                             #" pShannon= ", format(pValuesShannon[index], digits=3),
                             #" pKeptCounts= ", format(pValuesKeptCounts[index], digits=3),
-                            " pCage= " , format( pValuesCage[index], digits=3),
+                            " pGroup= " , format( pValuesCage[index], digits=3),
                             " icc= " , format( iccCage[index], digits=3 ), sep="")
-			par(mfrow=c(3,1),
+			par(mfrow=c(4,1),
                             oma = c(1,1,0,0) + 0.1,
                             mar = c(1,4,2.5,0) + 0.1)
 
-			plot( bug ~ factor(ac), ylab = names[index],main = graphMain )
-                        points(factor(sex), bug)
+			plot( bug ~ factor(multiWay), ylab = names[index],main = graphMain )
+                        points(factor(multiWay), bug)
 
 #			plot ( bug ~ factor(ac) )
 #                       points(factor(ac), bug)
 
-                        plot( bug ~ factor(c( paste( myT$Sex, myT$Condition,sep=""))))
-                        points(factor(c( paste( myT$Sex, myT$Condition,sep=""))), bug)
+                        plot( bug ~ factor(c( paste( myT$Sex, multiWay,sep=""))))
+                        points(factor(c( paste( myT$Sex, multiWay,sep=""))), bug)
 
-#                        plot ( bug ~ factor(treatment) )
-#                        points(factor(treatment), bug)
+                        plot ( bug ~ factor(batch) )
+                        points(factor(batch), bug)
 
-                        plot( bug ~ factor(cage), ylab=names[index])
-                        points(factor(cage), bug)
+                        plot( bug ~ factor(group), ylab=names[index])
+                        points(factor(group), bug)
 			index=index+1
 		}
 
@@ -145,9 +154,14 @@ for(taxa in taxaLevels )
 
 	dFrame$adjustedCage <- p.adjust( dFrame$pValuesCage, method = "BH" )
 #	dFrame$adjustedExperiment <- p.adjust( dFrame$pValuesExperiment, method = "BH" )
+        keepVector <- grep("adj", names(dFrame))
 
-        write.table(dFrame, file=paste("pValuesForTaxa_bug_condition_cage_", taxa, ".txt",sep=""),
+        sigdFrame <-dFrame[which(dFrame[,keepVector] < 0.05,arr.ind=TRUE),]
+        write.table(dFrame, file=paste("pValuesForTaxa_bug_multiWay_4_batch_byGroup_", taxa, ".txt",sep=""),
                     sep="\t",row.names=FALSE)
+                write.table(sigdFrame, file=paste("pValuesForTaxa_bug_multiWay_4_batch_byGroup_sig_", taxa, ".txt",sep=""),
+                    sep="\t",row.names=FALSE)
+
 
         dev.off()
 }

@@ -33,8 +33,8 @@ for(taxa in taxaLevels )
         myT<-myT[!(myT$Sample_ID %in% removeControls),]
         removetrs<-c("04_125_tr", "04_101_tr", "04_103_tr", "04_74_tr", "04_70_tr", "04_40_tr", "04_41_tr", "04_84_tr")
         myT<-myT[!(myT$Sample_ID %in% removetrs),]
-        removeLow<-c("04-55_S32_L001_R1_001")
-        myT<-myT[!(myT$MatchFile %in% removeLow),]
+##        removeLow<-c("04-55_S32_L001_R1_001")
+##        myT<-myT[!(myT$MatchFile %in% removeLow),]
         removeDups<-c("04-04_S63_L001_R1_001")
                                         #Somewhat arbitrarily here
         myT<-myT[!(myT$MatchFile %in% removeDups),]
@@ -43,7 +43,7 @@ for(taxa in taxaLevels )
         manualDrop <- c("Neg_S40_L001_R1_001", "PCR1Neg_S65_L001_R1_001")
         myT<-myT[!(myT$MatchFile %in% manualDrop),]
         labDrop <- c("Harlan Labs")
-        myT<-myT[!(myT$MouseOrigin %in% labDrop),]
+#        myT<-myT[!(myT$MouseOrigin %in% labDrop),]
 #print("Got through Processing")
 	# our initial model not worrying about confounders except cage
         myT$Condition[which(myT$Treatment == "Ctrl", arr.ind = TRUE)]<-"Control"
@@ -62,9 +62,9 @@ for(taxa in taxaLevels )
         acConf <- vector()
         sexConf <- vector()
 	index <- 1
-	pdf( paste(taxa, "Conditionboxplots.pdf", sep=""))
+	pdf( paste(taxa, "ConditionAcuteboxplots.pdf", sep=""))
 
-        myT <- myT[myT$Sex == "F",]
+        myT <- myT[myT$StressLength==9,]
 
 	for( i in 2:(ncol(myT)-numMetadataCols))
  		if( sum(myT[,i] != 0 ) > nrow(myT) / 4 )
@@ -84,6 +84,7 @@ for(taxa in taxaLevels )
                         reducedModel <- gls( bug~  ac, method="REML", data = myFrame )
 #                        confCheckModel <- gls (bug~ sex, method="REML",correlation=corCompSymm(form=~1|factor(cage)),				data = myFrame )
                         fullModelLME <- lme(bug~  ac, method="REML", random = ~1|factor(cage), data = myFrame)
+
 
 #                        acConf[index]<-paste((confCheckModel$coefficients["acC"] - fullModel$coefficients["acC"]) / confCheckModel$coefficients["acC"], sep=" ")
 
@@ -146,7 +147,7 @@ for(taxa in taxaLevels )
 	dFrame$adjustedCage <- p.adjust( dFrame$pValuesCage, method = "BH" )
 #	dFrame$adjustedExperiment <- p.adjust( dFrame$pValuesExperiment, method = "BH" )
 
-        write.table(dFrame, file=paste("pValuesForTaxa_bug_condition_cage_", taxa, ".txt",sep=""),
+        write.table(dFrame, file=paste("pValuesForTaxa_bug_condition_cage_acute", taxa, ".txt",sep=""),
                     sep="\t",row.names=FALSE)
 
         dev.off()

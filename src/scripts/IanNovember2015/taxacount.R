@@ -59,6 +59,7 @@ for ( t in taxa )
 
         myT$cohortNum <- as.numeric(myT$Study.ID <= "HC47")
 
+        taxaCounter <- 0
         #Reduce the number of columns by one to account for the cohort column
 	for( i in c(3, taxCol : (ncol(myT) - 1) ))
 	{
@@ -101,9 +102,11 @@ for ( t in taxa )
 			 		abline(aLm)
 
 			 	index <- index + 1
+                                taxaCounter <- taxaCounter + 1
 			 }
 		}
-	}
+            }
+        print(x=c(t, taxaCounter))
 
 dev.off()
 print(length(namesA))

@@ -2,13 +2,13 @@ rm(list=ls())
 library("lmtest")
 library("nlme")
 
-setwd("D:\\Susan_Oct2015")
+setwd("/Users/mbrown67/Documents/Fodor/Datasets/CarrollData/BombCalorimetry/")
 
 taxaLevels <- c("phylum","class","order","family","genus")
 
 for(taxa in taxaLevels )
 {
-	inFileName <- paste( taxa,  "_asColumnsWithMetadata.txt", sep ="")
+	inFileName <- paste( taxa,  "_paired_metadata.txt", sep ="")
 	myT <-read.table(inFileName,header=TRUE,sep="\t")
 	numCols <- ncol(myT)
 	myColClasses <- c(rep("character",1), rep("numeric", numCols-1))

@@ -4,46 +4,58 @@ library("pscl")
 library("lmtest")
 library("nlme")
 
-setwd("C:\\Susan_Oct2015")
-
+## setwd("C:\\Susan_Oct2015")
+setwd("/Users/mbrown67/Documents/Fodor/Datasets/CarrollData/BombCalorimetry")
 taxaLevels <- c("phylum","class","order","family","genus")
 
 for(taxa in taxaLevels )
 {
-	inFileName <- paste( taxa,  "_asColumnsWithMetadata.txt", sep ="")
+	inFileName <- paste(taxa, "_paired_metadata.txt", sep ="")
 	myT <-read.table(inFileName,header=TRUE,sep="\t")
 	numCols <- ncol(myT)
-	myColClasses <- c(rep("character",1), rep("numeric", numCols-1))
+	## myColClasses <- c(rep("character",1), rep("numeric", numCols-1))
+        myColClasses <- c(rep("numeric", numCols - 6), "character", rep("numeric", 5))
 	myT <-read.table(inFileName,header=TRUE,sep="\t",colClasses=myColClasses)
 
-	myT <- myT[ ! is.na(myT$energyIntake), ]
+	myT <- myT[ ! is.na(myT$cal.g), ]
+        ## This drops sample 712 from consideration.
+
+        ## to paired samples only
 
 	names <- vector()
 	pValuesTime <- vector()
 	pValuesSubject <- vector()
 	pValuesCalorimetry <- vector()
+        pValuesBMI <- vector()
+        pValuesLOS <- vector()
+        pValuesAge <- vector()
+        pValuesEnergy.Intake <- vector()
+        pValuesRelative.Energy.Content <- vector()
+
 	meanBug <- vector()
 	index <- 1
-	pdf( paste(taxa, "plotsNormCal.pdf", sep=""))
+	pdf( paste(taxa, "_new_plots.pdf", sep=""))
 
 	for( i in 6:numCols)
 		if( sum(myT[,i] != 0 ) > nrow(myT) / 4 )
-		{
-			bug <- log10( myT[,i] + 0.00001)
-			meanBug[index] <- mean(bug)
-			time <- factor(myT$timepoint)
-			patientID <- myT$patientID
-			normCalorimetry<- myT$calorimetryData / myT$energyIntake
+                    {
+                        ## Why is this log10'd?
+			## bug <- log10( myT[,i] + 0.00001)
+                        bug <- myT[,i]
+                        meanBug[index] <- mean(bug)
+			time <- factor(myT$Time)
+			patientID <- myT$Sample
+			calorimetry<- myT$cal.g
 
-			myFrame <- data.frame(bug, time, patientID, normCalorimetry)
+			myFrame <- data.frame(bug, time, patientID, calorimetry)
 
-			fullModel <- gls( bug~  time + normCalorimetry,
+			fullModel <- gls( bug~  time + calorimetry,
 				 method="REML",correlation=corCompSymm(form=~1|factor(patientID)),
 				data = myFrame )
 
-			reducedModel <- gls( bug~  time + normCalorimetry, method="REML",	data = myFrame )
+			reducedModel <- gls( bug~  time + calorimetry, method="REML",	data = myFrame )
 
-			fullModelLME <- lme(bug~  time + normCalorimetry, method="REML", random = ~1|factor(patientID), data = myFrame)
+			fullModelLME <- lme(bug~  time + calorimetry, method="REML", random = ~1|factor(patientID), data = myFrame)
 
 			pValuesTime[index] <- anova(fullModelLME)$"p-value"[2]
 			pValuesCalorimetry[index] <- anova(fullModelLME)$"p-value"[3]
@@ -56,7 +68,7 @@ for(taxa in taxaLevels )
 									" pSubject= " , format(	pValuesSubject[index], digits=3), "\n",
 										" icc= " , format( intraclassCoefficient, digits=3 ), sep="")
 
-			plot( bug ~ normCalorimetry, ylab = names[index],
+			plot( bug ~ calorimetry, ylab = names[index],
 					main = graphMain )
 			index=index+1
 
@@ -65,6 +77,6 @@ for(taxa in taxaLevels )
 	dFrame <- data.frame( names, pValuesTime ,pValuesSubject,pValuesCalorimetry ,meanBug)
 	dFrame <- dFrame [order(dFrame$pValuesCalorimetry),]
 	dFrame$adjustedpValuesCalorimetry <- p.adjust( dFrame$pValuesCalorimetry, method = "BH" )
-	write.table(dFrame, file=paste("pValuesFor", taxa, "normCalorimetry.txt",sep=""), sep="\t",row.names=FALSE)
+	write.table(dFrame, file=paste("NEW_pValuesFor", taxa, ".txt",sep=""), sep="\t",row.names=FALSE)
 		dev.off()
 }

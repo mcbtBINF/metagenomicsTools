@@ -11,12 +11,14 @@ library("vegan")
 
 taxa <- c("phylum","class","order","family","genus")
 
-## Proceeding forward with the 91 samples from the PC analysis.
+nPercent <- 0.01
+
 selectedSamplesPC <- c(65, 94, 43, 58, 84, 31, 10, 15, 4, 26, 68, 92, 23, 60, 83, 59, 82, 38,
                        45, 74, 48, 20, 3, 2, 13, 34, 57, 87, 100, 32, 30, 56, 70, 75, 44, 12,
                        93, 86, 33, 5, 53, 49, 71, 42, 6, 41, 16, 80, 78, 39, 24, 76, 8, 69, 47,
                        55, 19, 25, 37, 99, 67, 27, 51, 9, 14, 91, 54, 79, 81, 73, 66, 22, 85, 11,
                        1, 29, 96, 35, 98, 50, 18, 95, 90, 52, 40, 17, 72, 63, 21, 28, 64)
+
 
 getTaxaColumnNum <- function(myT)
 {
@@ -41,6 +43,7 @@ for ( t in taxa )
 	myT <- myT[ myT$read== "r1" & ! is.na(myT$AGE) , ]
         myT <- myT[as.numeric(sub("r1_", "", myT$id)) %in% selectedSamplesPC,]
 
+
 	names <- vector()
 	namesA <- vector()
 	namesB <- vector()
@@ -53,16 +56,35 @@ for ( t in taxa )
 
 	index <- 1
 
-	pdf( paste(t , "samp_cohort_correlationPlots.pdf",sep=""))
+	pdf( paste(t , "highabundance_samp_cohort_correlationPlots.pdf",sep=""))
 
 	taxCol <- getTaxaColumnNum(myT)
 
         myT$cohortNum <- as.numeric(myT$Study.ID <= "HC47")
 
+      	inFileName <- paste(t, "_SparseThreeCol.txt", sep = "")
+	myCountT <- read.table(inFileName, header=FALSE, sep = "\t")
+	myColClasses <- c(rep("character", 2), "numeric")
+	myCountT <- read.table(inFileName, header = FALSE, sep = "\t", colClasses = myColClasses)
+        colnames(myCountT) <- c("id", "taxa", "count")
+        myCountT$id <- unlist(lapply(strsplit(myCountT$id, split="\\."), "[[", 1))
+        myCountT$read <- unlist(lapply(strsplit(myCountT$id, split="_"), "[[", 1))
+	myCountT <- myCountT[ myCountT$read == "r1", ]
+
+        highAbundance<-vector()
+        for(i in myCountT$id){
+            highAbundance[i] <- sum(myCountT$count[which(myCountT$id == i, arr.ind=TRUE)])
+        }
+        highAbundance<-as.data.frame(highAbundance)
+        highAbundance$id <- rownames(highAbundance)
+        merged_df <- merge(myCountT, highAbundance)
+        merged_df$percent <- merged_df$count / merged_df$highAbundance
+        keptatnPercent <- unique(merged_df$taxa[which(merged_df$percent > nPercent)])
+
         #Reduce the number of columns by one to account for the cohort column
 	for( i in c(3, taxCol : (ncol(myT) - 1) ))
 	{
-		if( sum( myT[,i] >0 ) > nrow(myT) /4 )
+		if( sum( myT[,i] >0 ) > nrow(myT) /4 && names(myT)[i] %in% keptatnPercent)
                     {
 
 			 for ( j in 5:(taxCol-1))
@@ -106,7 +128,7 @@ for ( t in taxa )
 	}
 
 dev.off()
-print(length(namesA))
+
 dFrame <- data.frame( namesA, namesB, kendallP, pValueLinear, rVals, pValueTestvar, pValueCohort, iccCohort)
 
 dFrame <- dFrame [order(dFrame$kendallP),]
@@ -115,6 +137,6 @@ dFrame$adjPLinear <-  p.adjust( dFrame$pValueLinear, method = "BH" )
 dFrame$adjTestvar <- p.adjust( dFrame$pValueTestvar, method = "BH" )
 dFrame$adjCohort <- p.adjust(dFrame$pValueCohort, method = "BH" )
 
-write.table( file= paste( "samp_cohort_pValuesTaxaVsMetadata_", t, ".txt", sep=""), dFrame, row.names=FALSE, sep="\t")
+write.table( file= paste("highabundance_samp_cohort_pValuesTaxaVsMetadata_", t, "_", nPercent, ".txt", sep=""), dFrame, row.names=FALSE, sep="\t")
 }
 

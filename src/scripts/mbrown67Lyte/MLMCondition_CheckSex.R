@@ -64,8 +64,6 @@ for(taxa in taxaLevels )
 	index <- 1
 	pdf( paste(taxa, "Conditionboxplots.pdf", sep=""))
 
-        myT <- myT[myT$Sex == "F",]
-
 	for( i in 2:(ncol(myT)-numMetadataCols))
  		if( sum(myT[,i] != 0 ) > nrow(myT) / 4 )
 		{
@@ -80,10 +78,10 @@ for(taxa in taxaLevels )
  #                      shannon <- myT$shannon
                         myFrame <- data.frame(bug, ac, sex, cage, treatment, batch, date, mo)
 
-			fullModel <- gls( bug~   ac, method="REML",correlation=corCompSymm(form=~1|factor(cage)),				data = myFrame )
-                        reducedModel <- gls( bug~  ac, method="REML", data = myFrame )
+			fullModel <- gls( bug~   ac + sex, method="REML",correlation=corCompSymm(form=~1|factor(cage)),				data = myFrame )
+                        reducedModel <- gls( bug~  ac + sex, method="REML", data = myFrame )
 #                        confCheckModel <- gls (bug~ sex, method="REML",correlation=corCompSymm(form=~1|factor(cage)),				data = myFrame )
-                        fullModelLME <- lme(bug~  ac, method="REML", random = ~1|factor(cage), data = myFrame)
+                        fullModelLME <- lme(bug~  ac + sex, method="REML", random = ~1|factor(cage), data = myFrame)
 
 #                        acConf[index]<-paste((confCheckModel$coefficients["acC"] - fullModel$coefficients["acC"]) / confCheckModel$coefficients["acC"], sep=" ")
 
@@ -93,7 +91,7 @@ for(taxa in taxaLevels )
                                         # It seems like reducing the anova calls could speed things up a bit
                         # Remember to revert back to an earlier commit here
 			pValuesAcuteChronic[index] <- anova(fullModelLME)$"p-value"[2]
-			pValuesSex[index] <- anova(fullModelLME)$"p-value"[5]
+			pValuesSex[index] <- anova(fullModelLME)$"p-value"[3]
 			pValuesExperiment[index] <- anova(fullModelLME)$"p-value"[5]
                         pValuesBatch[index] <- anova(fullModelLME)$"p-value"[5]
                         pValuesTreatment[index] <- anova(fullModelLME)$"p-value"[5]
@@ -105,7 +103,7 @@ for(taxa in taxaLevels )
 			names[index] = names(myT)[i]
 
 			graphMain =  paste( names(myT)[i], "\n",
-#                            " pSex=", format( pValuesSex[index], digits=3),
+                            " pSex=", format( pValuesSex[index], digits=3),
                             " pCondition= ", format( pValuesAcuteChronic[index],digits=3),
 #                            " pBatch= ", format(pValuesBatch[index], digits=3), "\n",
 #                            " pTreatment= ", format(pValuesTreatment[index], digits=3),
@@ -135,11 +133,11 @@ for(taxa in taxaLevels )
 			index=index+1
 		}
 
-	dFrame <- data.frame( names, pValuesAcuteChronic, pValuesCage, iccCage)#, #pValuesTreatment)#, pValuesBatch)#, pValuesExperiment)
+	dFrame <- data.frame( names, pValuesAcuteChronic, pValuesSex, pValuesCage, iccCage)#, #pValuesTreatment)#, pValuesBatch)#, pValuesExperiment)
 #dropped pValuesSex
 #	dFrame <- dFrame[order(pValuesAcuteChronic),]
 	dFrame$adjustedAcuteChronic <- p.adjust( dFrame$pValuesAcuteChronic, method = "BH" )
-#	dFrame$adjustedSex<- p.adjust( dFrame$pValuesSex, method = "BH" )
+	dFrame$adjustedSex<- p.adjust( dFrame$pValuesSex, method = "BH" )
 #        dFrame$adjustedBatch<- p.adjust( dFrame$pValuesBatch, method = "BH" )
 #       dFrame$adjustedTreatment<- p.adjust( dFrame$pValuesTreatment, method = "BH" )
 
