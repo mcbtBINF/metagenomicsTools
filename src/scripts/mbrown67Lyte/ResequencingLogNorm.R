@@ -4,11 +4,11 @@ setwd("/Users/mbrown67/Documents/Fodor/Datasets/MarkExperiment/Resequencing/Forw
 
 myMetadata1 <- read.csv("../ResequencingMetadata.csv", header=TRUE)
 
-taxaLevels <- c( "domain", "phylum", "class", "order", "family", "genus" )
+taxaLevels <- c("phylum", "class", "order", "family", "genus" )
 
 for (taxa in taxaLevels)
     {
-        inFileName <- paste(taxa, "RawwithMetadata_R1.txt", sep = "")
+        inFileName <- paste(taxa, "RawwithMetadata_R1_Pooled.txt", sep = "")
         myT <- read.csv(inFileName, header=TRUE, sep = "\t")
         numCols <- ncol(myT)
         numMetadataCols <- 18
