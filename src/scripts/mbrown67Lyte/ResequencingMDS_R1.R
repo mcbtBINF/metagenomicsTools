@@ -92,11 +92,6 @@ for(taxa in taxaLevels )
                     if(xrun == yrun){
                         break
                     }
-    for (xrun in 1:4) {
-                for (yrun in 2:4) {
-                    if(xrun == yrun){
-                        break
-                    }
                     par(mar=c(5.1, 4.1, 4.1, 8.1), xpd=TRUE)
                     plot(myMDS$CA$u[,xrun], myMDS$CA$u[,yrun],xlab=paste("MDS",xrun,sep=""), ylab=paste("MDS",yrun,sep=""), main=paste("PCoA at level:", taxa,sep=""), cex=2.0,
                          pch=ifelse(myT$Treatment=="Ctrl", 1,
