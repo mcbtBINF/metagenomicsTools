@@ -82,7 +82,7 @@ col=ifelse(myT$Description == "Fodor-Lyte_Run1_2016-05-25", "red", "blue")
 for(taxa in taxaLevels )
 {
     inFileName <- paste( taxa, "LogNormwithMetadata_R1_Pooled.txt", sep ="")
-    myT <-read.csv(inFileName,header=TRUE,sep="", na.strings="BLAH")
+    myT <-read.csv(inFileName,header=TRUE,sep="")#, na.strings="BLAH")
     numCols <- ncol(myT)
     myT <- myT[-which(is.na(myT$MouseOrigin) == TRUE),]
     myMDS <- capscale(myT[,2:(ncol(myT)-numMetadataCols)]~1,distance="bray")
@@ -101,7 +101,6 @@ col=ifelse(myT$Description == "Fodor-Lyte_Run1_2016-05-25", "red", "blue")
                          )
                textxy(myMDS$CA$u[,xrun],myMDS$CA$u[,yrun],labs=myT$Sex,
                    cex=0.7, offset=0)
-		    # par(xpd=TRUE)
                     legend("topright", inset=c(-0.25,0),
                            c("Control", "Acute", "14Day", "Chronic",
 		    "Batch 1", "Batch 2"),
@@ -121,7 +120,7 @@ col=ifelse(myT$Description == "Fodor-Lyte_Run1_2016-05-25", "red", "blue")
 for(taxa in taxaLevels )
 {
     inFileName <- paste( taxa, "LogNormwithMetadata_R1_Pooled.txt", sep ="")
-    myT <-read.csv(inFileName,header=TRUE,sep="", na.strings="BLAH")
+    myT <-read.csv(inFileName,header=TRUE,sep="")#, na.strings="BLAH")
     numCols <- ncol(myT)
     myT <- myT[-which(is.na(myT$MouseOrigin) == TRUE),]
     myT <- myT[-which(myT$MouseOrigin == "Harlan Labs"), ]
