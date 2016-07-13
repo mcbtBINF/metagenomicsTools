@@ -24,7 +24,7 @@ taxaLevels <- c( "phylum", "class", "order", "family", "genus" )
 
 checkSizes <- read.csv("phylumRawwithMetadata_R1_Pooled.txt", header=TRUE, sep="", na.strings="BLAH")
 
-numMetadataCols <- 17
+numMetadataCols <- 19
 
 sampleSizes<-rowSums(checkSizes[,2:(ncol(checkSizes)-numMetadataCols)])
 
@@ -55,8 +55,8 @@ for(taxa in taxaLevels )
                     par(mar=c(5.1, 4.1, 4.1, 8.1), xpd=TRUE)
                     plot(myMDS$CA$u[,xrun], myMDS$CA$u[,yrun],xlab=paste("MDS",xrun,sep=""), ylab=paste("MDS",yrun,sep=""), main=paste("PCoA at level:", taxa,sep=""), cex=2.0,
                          pch=ifelse(myT$Treatment=="Ctrl", 1,
-                             ifelse(myT$Treatment == "Exp" && myT$Condition == "Acute", 15,
-                                    ifelse(myT$Treatment == "Exp" && myT$Condition == "14Day", 16, ifelse(myT$Treatment == "Exp" && myT$Condition == "Chronic", 17, 0)))), ##col=ifelse(myT$Treatment=="Ctrl", "black", ifelse(myT$Condition=="Acute", "blue", ifelse(myT$Condition=="14Day", "orange","red")))
+                             ifelse(myT$Condition == "Acute", 15,
+                                    ifelse(myT$Condition == "14Day", 16, ifelse(myT$Condition == "Chronic", 17, 0)))), ##col=ifelse(myT$Treatment=="Ctrl", "black", ifelse(myT$Condition=="Acute", "blue", ifelse(myT$Condition=="14Day", "orange","red")))
 col=ifelse(myT$Description == "Fodor-Lyte_Run1_2016-05-25", "red", "blue")
                          )
                textxy(myMDS$CA$u[,xrun],myMDS$CA$u[,yrun],labs=myT$Sex,
@@ -95,8 +95,8 @@ for(taxa in taxaLevels )
                     par(mar=c(5.1, 4.1, 4.1, 8.1), xpd=TRUE)
                     plot(myMDS$CA$u[,xrun], myMDS$CA$u[,yrun],xlab=paste("MDS",xrun,sep=""), ylab=paste("MDS",yrun,sep=""), main=paste("PCoA at level:", taxa,sep=""), cex=2.0,
                          pch=ifelse(myT$Treatment=="Ctrl", 1,
-                             ifelse(myT$Treatment == "Exp" && myT$Condition == "Acute", 15,
-                                    ifelse(myT$Treatment == "Exp" && myT$Condition == "14Day", 16, ifelse(myT$Treatment == "Exp" && myT$Condition == "Chronic", 17, 0)))), ##col=ifelse(myT$Treatment=="Ctrl", "black", ifelse(myT$Condition=="Acute", "blue", ifelse(myT$Condition=="14Day", "orange","red")))
+                             ifelse(myT$Condition == "Acute", 15,
+                                    ifelse(myT$Condition == "14Day", 16, ifelse(myT$Condition == "Chronic", 17, 0)))), ##col=ifelse(myT$Treatment=="Ctrl", "black", ifelse(myT$Condition=="Acute", "blue", ifelse(myT$Condition=="14Day", "orange","red")))
 col=ifelse(myT$Description == "Fodor-Lyte_Run1_2016-05-25", "red", "blue")
                          )
                textxy(myMDS$CA$u[,xrun],myMDS$CA$u[,yrun],labs=myT$Sex,
@@ -134,8 +134,8 @@ for(taxa in taxaLevels )
                     par(mar=c(5.1, 4.1, 4.1, 8.1), xpd=TRUE)
                     plot(myMDS$CA$u[,xrun], myMDS$CA$u[,yrun],xlab=paste("MDS",xrun,sep=""), ylab=paste("MDS",yrun,sep=""), main=paste("PCoA at level:", taxa,sep=""), cex=2.0,
                          pch=ifelse(myT$Treatment=="Ctrl", 1,
-                             ifelse(myT$Treatment == "Exp" && myT$Condition == "Acute", 15,
-                                    ifelse(myT$Treatment == "Exp" && myT$Condition == "14Day", 16, ifelse(myT$Treatment == "Exp" && myT$Condition == "Chronic", 17, 0)))), ##col=ifelse(myT$Treatment=="Ctrl", "black", ifelse(myT$Condition=="Acute", "blue", ifelse(myT$Condition=="14Day", "orange","red")))
+                             ifelse(myT$Condition == "Acute", 15,
+                                    ifelse(myT$Condition == "14Day", 16, ifelse(myT$Condition == "Chronic", 17, 0)))), ##col=ifelse(myT$Treatment=="Ctrl", "black", ifelse(myT$Condition=="Acute", "blue", ifelse(myT$Condition=="14Day", "orange","red")))
 col=ifelse(myT$Description == "Fodor-Lyte_Run1_2016-05-25", "red", "blue")
                          )
                textxy(myMDS$CA$u[,xrun],myMDS$CA$u[,yrun],labs=myT$Sex,
