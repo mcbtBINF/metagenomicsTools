@@ -11,7 +11,7 @@ for (taxa in taxaLevels)
         inFileName <- paste(taxa, "RawwithMetadata_R1_Pooled.txt", sep = "")
         myT <- read.csv(inFileName, header=TRUE, sep = "\t")
         numCols <- ncol(myT)
-        numMetadataCols <- 17
+        numMetadataCols <- 19
 
         nSamples <- dim(myT)[1] #N total number of samples
         sizeSamples <- rowSums(myT[,2:(ncol(myT) - numMetadataCols)]) #n number of sequences in a sample
