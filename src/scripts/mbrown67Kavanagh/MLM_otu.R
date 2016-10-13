@@ -13,7 +13,7 @@ tissueKept <- c("LI Lumen", "LI Mucosa", "Feces")
 ## tissueKept <- "LI Mucosa"
 ## tissueKept <- "Feces"
 
-filePrefix <- paste0(c(tissueKept, "ageGroup_sampType_bycage_"), collapse="_")
+filePrefix <- paste0(c(tissueKept, "age_sampType_bycage_"), collapse="_")
 mlm<- TRUE
 
 divider <- 4
@@ -65,15 +65,15 @@ for(taxa in taxaLevels){
             ## M7 <- lm(bug ~ sex + batch, data = myFrame)
             ## drop1(M1, test=
             if(mlm == TRUE){
-                fullModel <- gls( bug~ group + sampType, method="REML",correlation=corCompSymm(form=~1|cage),	data = myFrame )
-                reducedModel <- gls( bug~ group + sampType, method="REML", data = myFrame )
+               fullModel <- gls( bug~ age + sampType, method="REML",correlation=corCompSymm(form=~1|cage),	data = myFrame )
+                reducedModel <- gls( bug~ age + sampType, method="REML", data = myFrame )
                 ## reducedModel <- lme( bug ~ treatment + batch, method="REML", data = myFrame)
-                fullModelLME <- lme(bug~ group + sampType, method="REML", random = ~1|cage, data = myFrame)
+                fullModelLME <- lme(bug~ age + sampType, method="REML", random = ~1|cage, data = myFrame)
                 ## fullModelLME <- lme(bug~ treatment + batch, method="REML", random= list(group = ~1, cage = ~1), data = myFrame)
 
             }
             else{
-                fullModelLME <- lm(bug~ group + sampType, x=TRUE)
+                fullModelLME <- lm(bug~ age + sampType, x=TRUE)
             }
             ## Potential save time by reducing anova calls
             ## Introduce the goodness of fit tests here
@@ -93,7 +93,8 @@ for(taxa in taxaLevels){
                 allpvals[[index]]<-c(allpvals[[index]], anova(fullModelLME, reducedModel)$"p-value"[2], coef(fullModel$modelStruct[1]$corStruct,unconstrained=FALSE)[[1]])
                 pValuesCage[index] <-  anova(fullModelLME, reducedModel)$"p-value"[2]
                 ## This is different as it is not corrected for multiple hypothesis testing.
-                iccCage[index]<- coef(fullModel$modelStruct[1]$corStruct,unconstrained=FALSE)[[1]]
+                                iccCage[index]<-
+                 coef(fullModel$modelStruct[1]$corStruct,unconstrained=FALSE)[[1]]
                 ## iccCage[index] <- as.numeric(VarCorr(fullModelLME)[1,1])/ sum(as.numeric(VarCorr(fullModelLME)[,1])
             }
     ## Nice plotting

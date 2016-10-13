@@ -74,7 +74,7 @@ for(t in taxaLevels )
                         DITREE <- DIT / REE
                         EnergyContent <- myT$Energy.Content..cal.g
 ##                        EnergyContent <- myT$
-                        #myLm <- lm( myT[,i] ~ patient*EnergyContent)
+                        myLm <- lm( myT[,i] ~ patient*EnergyContent)
 
                         myLmpVal[index] <- list(summary(myLm)$coefficients[,4][-1])
 			myAnova <- anova(myLm)
@@ -99,7 +99,7 @@ for(t in taxaLevels )
 
                         graphMain <- names(myT)[i]
                         ## graphMain <- paste0(names(myT)[i],"\n", "meanA=", meanA, "\n", "meanB=", meanB, "\n", "meanC=", meanC)#, "\n", "coef", myLm$coef)
-                        plot(myT$Day, myT[,i], main = graphMain, col=colors, xlab="Time (Days)", ylab = "Log-Abundance", pch=16, ylim=c(0,5))
+                        plot(EnergyContent, myT[,i], main = graphMain, col=colors, xlab="Absolute Energy Content", ylab = "Log-Abundance", pch=16, ylim=c(0,5))
 
                         abline(a = meanA
                               #     myLm$coef[1]

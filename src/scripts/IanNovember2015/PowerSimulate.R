@@ -3,7 +3,6 @@ library("Kendall")
 
 ## this function from...
 ## http://stackoverflow.com/questions/19096983/when-simulating-multivariate-data-for-regression-how-can-i-set-the-r-squared-e
-## It was n.obs = 100 initially, but this changed to 91 after talking with people.
 simulate <- function(n.obs=91, beta=c(5, 3, -2), R.sq) {
     stopifnot(length(beta) == 3)
     df <- data.frame(x1=rnorm(n.obs))
@@ -24,7 +23,7 @@ df$actual.R.sq <- sapply(df$desired.R.sq, FUN=get.R.sq)
 plot(df)
 abline(a=0, b=1, col="red", lty=2)
 
-## taxa that pass the quarter cutoff multiplied by the number of psych measures.
+## taxa that pass the 1/4 presence/absence cutoff (see numerical values in manuscript) multiplied by the number of psych measures (17).
 countTests <- c(204, 323, 374, 782, 2261)
 
 pValuesList <- list()

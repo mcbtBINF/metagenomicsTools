@@ -3,6 +3,8 @@ library("lmtest")
 library("nlme")
 library("pscl")
 
+## Answers item 2 of the email: Drops sample 712 and works in relative energy.
+
 setwd("/Users/mbrown67/Documents/Fodor/Datasets/CarrollData/BombCalorimetry/")
 
 taxaLevels <- c("phylum","class","order","family","genus")
@@ -25,7 +27,7 @@ for(taxa in taxaLevels )
 
 	index <- 1
 
-        pdf( paste(taxa, "_BothTime_Relative.pdf", sep=""))
+        pdf( paste(taxa, "_BothTimes_Relative.pdf", sep=""))
 
 	for( i in 3:(numCols - 7))
 		if( sum(myT[,i] != 0 ) > nrow(myT) / 4 )
@@ -73,6 +75,6 @@ for(taxa in taxaLevels )
         dFrame$adjustedpValuesTime <- p.adjust( dFrame$pValuesTime, method = "BH" )
         dFrame$adjustedpValuesPatientID <- p.adjust( dFrame$pValuesPatientID, method = "BH" )
 
-	write.table(dFrame, file=paste("pValuesFor_", taxa, "_Calorimetry_Time_Patient_RELATIVE.txt",sep=""), sep="\t",row.names=FALSE)
+	write.table(dFrame, file=paste("pValuesFor_", taxa, "_Calorimetry_BothTimes_Patient_RELATIVE.txt",sep=""), sep="\t",row.names=FALSE)
 		dev.off()
 }

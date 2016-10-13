@@ -13,7 +13,7 @@ tissueKept <- c("LI Lumen", "LI Mucosa", "Feces")
 ## tissueKept <- "LI Mucosa"
 ## tissueKept <- "Feces"
 
-filePrefix <- paste0(c(tissueKept, "age_sampType_bycage_"), collapse="_")
+filePrefix <- paste0(c(tissueKept, "TEST_TEST_bycage_"), collapse="_")
 mlm<- TRUE
 
 divider <- 4

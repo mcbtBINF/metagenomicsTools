@@ -5,22 +5,24 @@ library("lmtest")
 library("nlme")
 library("vegan")
 
-setwd("/Users/mbrown67/Documents/Fodor/Datasets/KylieData/IntestinalAging/rdpClassifications")
-taxaLevels <- c( "phylum", "class", "order", "family", "genus")
+## setwd("/Users/mbrown67/Documents/Fodor/Datasets/KylieData/IntestinalAging/rdpClassifications")
+setwd("/Users/mbrown67/Documents/Fodor/Datasets/KylieData/IntestinalAging")
+## taxaLevels <- c( "phylum", "class", "order", "family", "genus")
+taxaLevels <- c(1, 2, 3)
 
 tissueKept <- c("LI Lumen", "LI Mucosa", "Feces")
 ## tissueKept <- "LI Lumen"
 ## tissueKept <- "LI Mucosa"
 ## tissueKept <- "Feces"
 
-filePrefix <- paste0(c(tissueKept, "age_sampType_bycage_"), collapse="_")
+filePrefix <- paste0(c("PICRUSt_", tissueKept, "_ageGroup_sampType_bycage_"), collapse="_")
 mlm<- TRUE
 
 divider <- 4
 
 for(taxa in taxaLevels){
 
-    inFileName <- paste( taxa, "_LogNormwithMetadata_R1.txt", sep ="")
+    inFileName <- paste("PICRUSt_", taxa, "_LogNormwithMetadata.txt", sep ="")
     myT <-read.csv(inFileName,header=TRUE,sep="", na.strings="BLAH")
 
     numCols <- ncol(myT)
@@ -39,7 +41,7 @@ for(taxa in taxaLevels){
 
     index <- 1
 
-    pdf( paste(taxa, filePrefix, "boxplots.pdf", sep=""))
+    pdf( paste("PICRUSt_", taxa, filePrefix, "boxplots.pdf", sep=""))
 
     myT<-myT[myT$Sample.Type %in% tissueKept,]
 
@@ -65,15 +67,15 @@ for(taxa in taxaLevels){
             ## M7 <- lm(bug ~ sex + batch, data = myFrame)
             ## drop1(M1, test=
             if(mlm == TRUE){
-                fullModel <- gls( bug~ age + sampType, method="REML",correlation=corCompSymm(form=~1|cage),	data = myFrame )
-                reducedModel <- gls( bug~ age + sampType, method="REML", data = myFrame )
+                fullModel <- gls( bug~ group + sampType, method="REML",correlation=corCompSymm(form=~1|cage),	data = myFrame )
+                reducedModel <- gls( bug~ group + sampType, method="REML", data = myFrame )
                 ## reducedModel <- lme( bug ~ treatment + batch, method="REML", data = myFrame)
-                fullModelLME <- lme(bug~ age + sampType, method="REML", random = ~1|cage, data = myFrame)
+                fullModelLME <- lme(bug~ group + sampType, method="REML", random = ~1|cage, data = myFrame)
                 ## fullModelLME <- lme(bug~ treatment + batch, method="REML", random= list(group = ~1, cage = ~1), data = myFrame)
 
             }
             else{
-                fullModelLME <- lm(bug~ age + sampType, x=TRUE)
+                fullModelLME <- lm(bug~ group + sampType, x=TRUE)
             }
             ## Potential save time by reducing anova calls
             ## Introduce the goodness of fit tests here
@@ -156,13 +158,13 @@ for(taxa in taxaLevels){
 
     dFrame <- cbind(names, dFrame)
     ## Try and dynamically generate the name of the plot here...
-    write.table(dFrame, file=paste("pValues", filePrefix, taxa, ".txt",sep=""), sep="\t",row.names=FALSE)
+    write.table(dFrame, file=paste("pValues_PICRUSt_", filePrefix, taxa, ".txt",sep=""), sep="\t",row.names=FALSE)
 
     ## Get the sig table working
     ## It would also be nice to have a sig-picker for the plots and a combination of all sig results into one plot.
     keepVector <- grep("adj", names(dFrame))
     sigdFrame <-dFrame[which(dFrame[,keepVector] < 0.05,arr.ind=TRUE),]
-    write.table(sigdFrame, file=paste("SIGpValues", filePrefix, taxa, ".txt",sep=""), sep="\t",row.names=FALSE)
+    write.table(sigdFrame, file=paste("SIGpValues_PICRUSt_", filePrefix, taxa, ".txt",sep=""), sep="\t",row.names=FALSE)
 
     dev.off()
 }

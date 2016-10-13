@@ -14,11 +14,11 @@ for(taxa in taxaLevels )
 	myColClasses <- c(rep("character",1), rep("numeric", numCols-1))
 	myT <-read.table(inFileName,header=TRUE,sep="\t",colClasses=myColClasses)
 
-	myT <- myT[ myT$timepoint == "2" &  ! is.na(myT$calorimetryData), ]
+	myT <- myT[ myT$Time == "1" &  ! is.na(myT$calorimetryData), ]
 
 	names <- vector()
 	pValuesSubject <- vector()
-	pValuesCalromitery <- vector()
+	pValuesCalorimetry <- vector()
 	meanBug <- vector()
 	index <- 1
 	pdf( paste(taxa, "plotsTimepoint1.pdf", sep=""))
@@ -40,7 +40,7 @@ for(taxa in taxaLevels )
 			names[index] = names(myT)[i]
 
 			graphMain =  paste( names(myT)[i],
-				" pValuesCalromitery= ", format(pValuesCalromitery[index],digits=3))
+				" pValuesCalorimetry= ", format(pValuesCalromitery[index],digits=3))
 
 			plot( bug ~ calorimetry, ylab = names[index],
 					main = graphMain )
@@ -51,6 +51,6 @@ for(taxa in taxaLevels )
 	dFrame <- data.frame( names, pValuesCalromitery ,meanBug)
 	dFrame <- dFrame [order(dFrame$pValuesCalromitery),]
 	dFrame$adjustedpValuesCalromitery <- p.adjust( dFrame$pValuesCalromitery, method = "BH" )
-	write.table(dFrame, file=paste("pValuesFor", taxa, "OnlyTime2.txt",sep=""), sep="\t",row.names=FALSE)
+	write.table(dFrame, file=paste("pValuesFor", taxa, "OnlyTime1.txt",sep=""), sep="\t",row.names=FALSE)
 		dev.off()
 }

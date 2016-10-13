@@ -10,97 +10,110 @@ library("nlme")
 library("gtools")
 
 taxaLevels <- c("phylum","class","order","family","genus")
-#Right Now I'm being lazy with the changing of the variable names
+                                        ## Right Now I'm being lazy with the changing of the variable names
 indexS <- 1
 ShannonP <- list()
 ShannonSummary <- list()
 for(t in taxaLevels )
 {
-                                        #t<-taxaLevels[[1]]
-        pdf( paste("Shannon_","EnergyPatient_",t, "_plots.pdf", sep = ""))
-      	inFileName <- paste(t, "LogNormalwithMetadataDailyR2_Edit.txt", sep="")
-	myT <-read.table(inFileName, header=TRUE, sep="\t")
-	numCols <- ncol(myT)
-        # I don't think that will necessarily be right.
-	#myColClasses <- c(rep("character", 2), "numeric", "character", rep("numeric", numCols-4))
-	#myT <-read.table(inFileName, header=TRUE, sep="\t", colClasses=myColClasses)
-	myT <- myT[ !is.na(myT[2]), ]
+                                        ## t<-taxaLevels[[1]]
+    pdf( paste("Shannon_","EnergyPatient_",t, "_plots.pdf", sep = ""))
+    inFileName <- paste(t, "LogNormalwithMetadataDailyR2_Edit.txt", sep="")
+    myT <-read.table(inFileName, header=TRUE, sep="\t")
+    numCols <- ncol(myT)
+                                        # I don't think that will necessarily be right.
+                                        #myColClasses <- c(rep("character", 2), "numeric", "character", rep("numeric", numCols-4))
+                                        #myT <-read.table(inFileName, header=TRUE, sep="\t", colClasses=myColClasses)
+    myT <- myT[ !is.na(myT[2]), ]
 
-	names <-vector()
+    names <-vector()
 
-        DayPatientpVal <- list()
+    DayPatientpVal <- list()
 
-        #Patients to colors
-	colors <- vector()
-        patient <- vector()
-	cIndex <- 1
+                                        #Patients to colors
+    colors <- vector()
+    patient <- vector()
+    cIndex <- 1
 
-        myT <- myT[-which(myT$Sample.ID %in% list(37, 45, 52, 58, 7, 9),arr.ind=TRUE),]
+    myT <- myT[-which(myT$Sample.ID %in% list(37, 45, 52, 58, 7, 9),arr.ind=TRUE),]
 
-	for ( j in 1: nrow(myT))
+    for ( j in 1: nrow(myT))
 	{
-		if( substr(myT[j,]$Sample.ID,1,1) == "B")
+            if( substr(myT[j,]$Sample.ID,1,1) == "B")
 		{
                     colors[cIndex] <- "Blue"
                     patient[cIndex] <- "B"
 		} else if (substr(myT[j,]$Sample.ID,1,1) == "C" )
-		{
-                    colors[cIndex] <- "Red"
-                    patient[cIndex] <- "C"
-		} else
-		{
-                    colors[cIndex] <- "Black"
-                    patient[cIndex] <- "A"
-		}
-		cIndex = cIndex + 1
+                      {
+                          colors[cIndex] <- "Red"
+                          patient[cIndex] <- "C"
+                      } else
+                          {
+                              colors[cIndex] <- "Black"
+                              patient[cIndex] <- "A"
+                          }
+            cIndex = cIndex + 1
 	}
 
-#	index <-1
+                                        #	index <-1
 
-        # Should reliably do this even for the mixed case
-        myT <- myT[mixedorder(myT[,1]),]
-        myT$Shannon <- apply(myT[,2:(ncol(myT)-14)],1,diversity)
-        Shannon <- myT$Shannon
-        Day <- myT$Day
-        ImputedBMI<-myT$Imputed.BMI
-        EnergyIntake<-myT$Energy.Intake..kcal.day.
+                                        # Should reliably do this even for the mixed case
+    myT <- myT[mixedorder(myT[,1]),]
+    myT$Shannon <- apply(myT[,2:(ncol(myT)-14)],1,diversity)
+    Shannon <- myT$Shannon
+    Day <- myT$Day
+    ImputedBMI<-myT$Imputed.BMI
+    EnergyIntake<-myT$Energy.Intake..kcal.day.
 
-        Shannonlm <- lm(Shannon ~ EnergyIntake*patient, x = TRUE)
-        #ShannonlmBMI <- lm(Shannon ~ ImputedBMI*patient, x = TRUE)
+    Shannonlm <- lm(Shannon ~ EnergyIntake*patient, x = TRUE)
+    fullModel <- gls( bug~  calorimetry + time,
+                     method="REML",correlation=corCompSymm(form=~1|factor(patientID)),
+                     data = myFrame )
+
+    reducedModel <- gls( bug~  calorimetry + time, method="REML",	data = myFrame )
+
+    fullModelLME <- lme(bug~  calorimetry + time, method="REML", random = ~1|factor(patientID), data = myFrame)
+
+    pValuesCalorimetry[index] <- anova(fullModelLME)$"p-value"[2]
+    pValuesTime[index] <- anova(fullModelLME)$"p-value"[3]
+    pValuesPatientID[index] <-  anova(fullModelLME, reducedModel)$"p-value"[2]
+    intraclassCoefficient<- coef(fullModel$modelStruct[1]$corStruct,unconstrained=FALSE)[[1]]
+
+                                        #ShannonlmBMI <- lm(Shannon ~ ImputedBMI*patient, x = TRUE)
                                         #ShannonlmEnergy <- lm(Shannon ~ EnergyIntake*patient, x = TRUE)
-        ShannonP[indexS] <- list(anova(Shannonlm)$"Pr(>F)"[1:3])
-#        ShannonP[indexS] <- list(summary(Shannonlm)$coefficients[,4][-1])
-#        ShannonSummary[indexS]<-summary(Shannonlm)
+    ShannonP[indexS] <- list(anova(Shannonlm)$"Pr(>F)"[1:3])
+                                        #        ShannonP[indexS] <- list(summary(Shannonlm)$coefficients[,4][-1])
+                                        #        ShannonSummary[indexS]<-summary(Shannonlm)
 
-#        names[indexS] = names(myT)[i]
+                                        #        names[indexS] = names(myT)[i]
 
-        indexS <- indexS + 1
+    indexS <- indexS + 1
 
-        # Building the data.frames to eventually print out the p-values
-        DayPatientPV.df <- data.frame(ShannonP)
-        DayPatientPV.df <- t(DayPatientPV.df)
-        dFrameDayPatient <- DayPatientPV.df
-        colnames(dFrameDayPatient) <- c("EnergyIntake", "patient", "EnergyIntake:patient")
+                                        # Building the data.frames to eventually print out the p-values
+    DayPatientPV.df <- data.frame(ShannonP)
+    DayPatientPV.df <- t(DayPatientPV.df)
+    dFrameDayPatient <- DayPatientPV.df
+    colnames(dFrameDayPatient) <- c("EnergyIntake", "patient", "EnergyIntake:patient")
 
-        plot(EnergyIntake, Shannon, col=colors)
-        abline(a = Shannonlm$coef[1], b = Shannonlm$coef[2], col="BLACK")
-        abline(a = Shannonlm$coef[1]+Shannonlm$coef[3], b = Shannonlm$coef[5] + Shannonlm$coef[2], col="BLUE")
-        abline(a = Shannonlm$coef[1]+Shannonlm$coef[4], b = Shannonlm$coef[6] + Shannonlm$coef[2], col="RED")
+    plot(EnergyIntake, Shannon, col=colors)
+    abline(a = Shannonlm$coef[1], b = Shannonlm$coef[2], col="BLACK")
+    abline(a = Shannonlm$coef[1]+Shannonlm$coef[3], b = Shannonlm$coef[5] + Shannonlm$coef[2], col="BLUE")
+    abline(a = Shannonlm$coef[1]+Shannonlm$coef[4], b = Shannonlm$coef[6] + Shannonlm$coef[2], col="RED")
 
-        write.table(dFrameDayPatient, file = paste("pValuesShannon_EnergyIntakePatient_", t, ".txt", sep=""), row.names=FALSE, sep="\t")
+    write.table(dFrameDayPatient, file = paste("pValuesShannon_EnergyIntakePatient_", t, ".txt", sep=""), row.names=FALSE, sep="\t")
 
-        dev.off()
+    dev.off()
 
-#        dFrameDayPatient <- data.frame(names, DayPatientPV.df)
+                                        #        dFrameDayPatient <- data.frame(names, DayPatientPV.df)
 
-#        for (m in 2:dim(dFrameDayPatient)[2])
-#        {
-#           dFrameDayPatient[,dim(dFrameDayPatient)[2] + 1] <- p.adjust(dFrameDayPatient[,m], method = "BH")
-           #colnames(dFrameDayPatient)[ncol(dFrameDayPatient)]<-paste0("adj",colnames(dFrameDayPatient)[m])
-#        }
+                                        #        for (m in 2:dim(dFrameDayPatient)[2])
+                                        #        {
+                                        #           dFrameDayPatient[,dim(dFrameDayPatient)[2] + 1] <- p.adjust(dFrameDayPatient[,m], method = "BH")
+                                        #colnames(dFrameDayPatient)[ncol(dFrameDayPatient)]<-paste0("adj",colnames(dFrameDayPatient)[m])
+                                        #        }
 
                                         #Finally, writing out the p-values and BH adjusted p-values
-#        write.table(dFrameDayPatient, file = paste("pValuesLongDayPatientShannon_", t, ".txt", sep=""), row.names=FALSE, sep="\t")
+                                        #        write.table(dFrameDayPatient, file = paste("pValuesLongDayPatientShannon_", t, ".txt", sep=""), row.names=FALSE, sep="\t")
 
-#    dev.off()
+                                        #    dev.off()
 }

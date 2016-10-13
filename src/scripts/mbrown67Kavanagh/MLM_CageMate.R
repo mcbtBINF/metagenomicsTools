@@ -13,7 +13,7 @@ tissueKept <- c("LI Lumen", "LI Mucosa", "Feces")
 ## tissueKept <- "LI Mucosa"
 ## tissueKept <- "Feces"
 
-filePrefix <- paste0(c(tissueKept, "age_sampType_bycage_"), collapse="_")
+filePrefix <- paste0(c(tissueKept, "ageGroup_cageMate_sampType_bycage_"), collapse="_")
 mlm<- TRUE
 
 divider <- 4
@@ -24,7 +24,8 @@ for(taxa in taxaLevels){
     myT <-read.csv(inFileName,header=TRUE,sep="", na.strings="BLAH")
 
     numCols <- ncol(myT)
-    numMetadataCols <- 6
+    ### Had to change because of cageMate variable
+    numMetadataCols <- 7
 
     names <- vector()
     pValuesSex<- vector()
@@ -40,7 +41,7 @@ for(taxa in taxaLevels){
     index <- 1
 
     pdf( paste(taxa, filePrefix, "boxplots.pdf", sep=""))
-
+    myT$hasCageMate <- c(rep(1, 12), rep(0, 3), rep(0, 3), rep(1, 3), rep(0, 3), rep(1, 1), rep(0, 3), rep(0, 3), rep(0, 3), rep(1, 2), rep(1, 5), rep(0, 3), rep(0, 2), rep(1, 2), rep(0, 3))
     myT<-myT[myT$Sample.Type %in% tissueKept,]
 
     for( i in 2:(ncol(myT) - numMetadataCols))
@@ -53,9 +54,10 @@ for(taxa in taxaLevels){
             cage <- myT$Pen.Location
             group <- myT$Group
             age <- myT$Age
+            cageMate <- myT$hasCageMate
             names[index] = names(myT)[i]
             ## Some kind of vector for the variables of interest
-            myFrame <- data.frame(bug, age, group, sampType, cage, animal)
+            myFrame <- data.frame(bug, age, group, sampType, cage, animal, cageMate)
             ## M1 <- lm(bug ~ sex + treatment + time + batch + group + date, data = myFrame)
             ## M2 <- lm(bug ~ sex + treatment + time + batch, data = myFrame)
             ## M3 <- lm(bug ~ sex*treatment*time*batch, data = myFrame)
@@ -65,15 +67,15 @@ for(taxa in taxaLevels){
             ## M7 <- lm(bug ~ sex + batch, data = myFrame)
             ## drop1(M1, test=
             if(mlm == TRUE){
-                fullModel <- gls( bug~ age + sampType, method="REML",correlation=corCompSymm(form=~1|cage),	data = myFrame )
-                reducedModel <- gls( bug~ age + sampType, method="REML", data = myFrame )
+                fullModel <- gls( bug~ cageMate + sampType, method="REML",correlation=corCompSymm(form=~1|cage),	data = myFrame )
+                reducedModel <- gls( bug~ group + cageMate + sampType, method="REML", data = myFrame )
                 ## reducedModel <- lme( bug ~ treatment + batch, method="REML", data = myFrame)
-                fullModelLME <- lme(bug~ age + sampType, method="REML", random = ~1|cage, data = myFrame)
+                fullModelLME <- lme(bug~ group + cageMate + sampType, method="REML", random = ~1|cage, data = myFrame)
                 ## fullModelLME <- lme(bug~ treatment + batch, method="REML", random= list(group = ~1, cage = ~1), data = myFrame)
 
             }
             else{
-                fullModelLME <- lm(bug~ age + sampType, x=TRUE)
+                fullModelLME <- lm(bug~ group + cageMate + sampType, x=TRUE)
             }
             ## Potential save time by reducing anova calls
             ## Introduce the goodness of fit tests here

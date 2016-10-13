@@ -32,7 +32,7 @@ for (taxa in taxaLevels)
 #                    }
 #            }
 
-        merged<-merge(x = myT, y = myMetadata1, by = "Spacer", all = TRUE)
+        merged<-merge(x = myT, y = myMetadata1, by = "MatchFile", all = TRUE)
  #       mergedLN<-merge(x = myLogNorm, y = myMetadata1, by = "MatchFile", all = TRUE)
 
         write.table(merged, file=paste(taxa,"RawwithMetadata_R1_Pooled.txt", sep=""), row.names = FALSE, sep="\t")

@@ -117,6 +117,7 @@ col=ifelse(myT$Description == "Fodor-Lyte_Run1_2016-05-25", "red", "blue")
 }
 
 ## Removes Negative and Positive Controls; Removes Harlan Labs Mice
+##
 for(taxa in taxaLevels )
 {
     inFileName <- paste( taxa, "LogNormwithMetadata_R1_Pooled.txt", sep ="")

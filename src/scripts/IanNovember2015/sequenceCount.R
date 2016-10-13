@@ -17,19 +17,24 @@ selectedSamplesPC <- c(65, 94, 43, 58, 84, 31, 10, 15, 4, 26, 68, 92, 23, 60, 83
                        93, 86, 33, 5, 53, 49, 71, 42, 6, 41, 16, 80, 78, 39, 24, 76, 8, 69, 47,
                        55, 19, 25, 37, 99, 67, 27, 51, 9, 14, 91, 54, 79, 81, 73, 66, 22, 85, 11,
                        1, 29, 96, 35, 98, 50, 18, 95, 90, 52, 40, 17, 72, 63, 21, 28, 64)
-
+iter <- 1
 for ( t in taxa )
 {
-	inFileName <- paste( t, "_SparseThreeCol.txt", sep="")
+
+        inFileName <- paste( t, "_SparseThreeCol.txt", sep="")
 	myT <-read.table(inFileName,header=FALSE,sep="\t")
 	numCols <- ncol(myT)
         myT <- myT[grepl("^r1_", myT[,1]),]
         rowNums <-  as.numeric(sapply(strsplit(as.character(sapply(strsplit(as.character(myT[,1]), split="\\."), function(x) x[1])), "r1_"), function(y) y[2]))
         myT[,1] <- rowNums
+        if (iter == 1) {
+            fullAgg <- aggregate(myT[,3]~myT[,1], data = myT, FUN=sum)
+        }
         myT <- myT[myT[,1] %in% selectedSamplesPC,]
         print(sum(myT[,3])/length(selectedSamplesPC))
         myTAgg <- aggregate(myT[,3]~myT[,1], data=myT, FUN=sum)
         print(range(myTAgg[,2]))
+        iter <- iter + 1
                                         #        selRows <- "r1_" %in% myT[,1]
 
                                         #	myT <- myT["r1_",]

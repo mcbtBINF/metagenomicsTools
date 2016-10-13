@@ -68,7 +68,8 @@ for(taxa in taxaLevels )
 
 			index=index+1
 
-		}
+                    }
+        print(c(taxa, index))
 	dFrame <- data.frame( names, pValuesCalorimetry, pValuesPatientID) ## ,intraclassCoefficient)
 	dFrame <- dFrame [order(dFrame$pValuesCalorimetry),]
 	dFrame$adjustedpValuesCalorimetry <- p.adjust( dFrame$pValuesCalorimetry, method = "BH" )

@@ -13,6 +13,8 @@ taxa <- c("phylum","class","order","family","genus")
 
 nPercent <- 0.01
 
+### Samples selected come from the 91 in the MDS plots
+### These represent out of the 100 beginning participants, those that 1) completed the various psych surveys 2) submitted a fecal sample and 3) the reads mapped (at the phyla threshold) met a cutoff of 2500. In fact, the 3 sequences excluded for depth reasons all had less than 100 reads mapping at the phyla level.
 selectedSamplesPC <- c(65, 94, 43, 58, 84, 31, 10, 15, 4, 26, 68, 92, 23, 60, 83, 59, 82, 38,
                        45, 74, 48, 20, 3, 2, 13, 34, 57, 87, 100, 32, 30, 56, 70, 75, 44, 12,
                        93, 86, 33, 5, 53, 49, 71, 42, 6, 41, 16, 80, 78, 39, 24, 76, 8, 69, 47,

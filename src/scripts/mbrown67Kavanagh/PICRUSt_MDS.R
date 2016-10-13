@@ -3,10 +3,10 @@ library("RColorBrewer")
 library("vegan")
 library("calibrate")
 
-setwd("/Users/mbrown67/Documents/Fodor/Datasets/KylieData/IntestinalAging/rdpClassifications")
-taxaLevels <- c( "phylum", "class", "order", "family", "genus" )
+setwd("/Users/mbrown67/Documents/Fodor/Datasets/KylieData/IntestinalAging/")
+KEGGLevelsLevels <- c(1, 2, 3) ## c( "phylum", "class", "order", "family", "genus" )
 
-checkSizes <- read.csv("phylum_RawwithMetadata_R1.txt", header=TRUE, sep="", na.strings="BLAH")
+## checkSizes <- read.csv("phylum_RawwithMetadata_R1.txt", header=TRUE, sep="", na.strings="BLAH")
 
 ## checkSizesR2 <- read.csv("phylumRawwithMetadata_R2_Pooled.txt", header=TRUE, sep="", na.strings="BLAH")
 
@@ -15,11 +15,11 @@ checkSizes <- read.csv("phylum_RawwithMetadata_R1.txt", header=TRUE, sep="", na.
 ## justR2 <- simpleCounter[grep("_R2_", simpleCounter[,1]),]
 numMetadataCols <- 6
 
-sampleSizes<-rowSums(checkSizes[,2:(ncol(checkSizes)-numMetadataCols)])
+## sampleSizes<-rowSums(checkSizes[,2:(ncol(checkSizes)-numMetadataCols)])
 ## sampleSizesR2<-rowSums(checkSizesR2[,2:(ncol(checkSizesR2)-numMetadataCols)])
-newCheck <- cbind(checkSizes, sampleSizes)
+## newCheck <- cbind(checkSizes, sampleSizes)
 ## newCheckR2 <- cbind(checkSizesR2, sampleSizesR2)
-reNewCheck<-newCheck[,c(1,dim(newCheck)[2])]
+## reNewCheck<-newCheck[,c(1,dim(newCheck)[2])]
 ## reNewCheckR2<-newCheckR2[,c(1, dim(newCheckR2)[2])]
 ## testR1 <- merge(reNewCheck, justR1, by.x=1, by.y=1)
 ## testR2 <- merge(reNewCheckR2, justR2, by.x=1, by.y=1)
@@ -31,25 +31,25 @@ tissueKept <- c("LI Lumen", "LI Mucosa", "Feces")
 ## tissueKept <- "Feces"
 
 
-for(taxa in taxaLevels )
+for(KEGGLevels in KEGGLevelsLevels )
 {
-    inFileName <- paste( taxa, "_LogNormwithMetadata_R1.txt", sep ="")
+    inFileName <- paste("PICRUSt_", KEGGLevels, "_LogNormwithMetadata.txt", sep ="")
     myT <-read.csv(inFileName,header=TRUE,sep="", na.strings="BLAH")
     numCols <- ncol(myT)
     ## Restrict the tissue focus
     myT<-myT[myT$Sample.Type %in% tissueKept,]
-                          colVector <- c("#a50026", "#d73027", "#f46d43", "#fdae61", "#fee090", "#ffffbf", "#e0f3f8", "#abd9e9", "#74add1", "#4575b4",  "#313695", "#0000ff")[as.numeric(as.factor(myT$Pen.Location))]
+                          colVector <- c("#a50026", "#d73027", "#f46d43", "#fdae61", "#fee090", "#ffff00", "#63dcfe", "#abd9e9", "#74add1", "#4575b4",  "#313695", "#0000ff")[as.numeric(as.factor(myT$Pen.Location))]
 
 
     myMDS <- capscale(myT[,2:(ncol(myT)-numMetadataCols)]~1,distance="bray")
 
-     pdf( paste(taxa, "_", paste0(tissueKept,collapse="_"), "_topMDS.pdf",sep=""))
+     pdf( paste(KEGGLevels, "_PICRUSt_", paste0(tissueKept,collapse="_"), "_topMDS.pdf",sep=""))
      for (xrun in 1:4) {
                  for (yrun in 2:4) {
                      if(xrun == yrun){
                          break
                      }
-                     plot(myMDS$CA$u[,xrun], myMDS$CA$u[,yrun],xlab=paste("MDS",xrun,sep=""), ylab=paste("MDS",yrun,sep=""), main=paste("PCoA at level:", taxa,sep=""), ##xlim=c(-0.5, 0.5), ylim=c(-0.5, 0.5),
+                     plot(myMDS$CA$u[,xrun], myMDS$CA$u[,yrun],xlab=paste("MDS",xrun,sep=""), ylab=paste("MDS",yrun,sep=""), main=paste("PCoA at level:", KEGGLevels,sep=""), ##xlim=c(-0.5, 0.5), ylim=c(-0.5, 0.5),
                            cex=2.0,
                           ## cex = log(myT$Age),
 
@@ -72,33 +72,33 @@ for(taxa in taxaLevels )
 
          dev.off()
 
-     write.table(myMDS$CA$u, sep="\t", file=paste("pcoa_", taxa, paste0(tissueKept,collapse="_"), ".txt", sep=""))
-     write.table(myMDS$CA$eig,file=paste("eigenValues_", taxa, paste0(tissueKept,collapse="_"), ".txt", sep=""), sep="\t")
+     write.table(myMDS$CA$u, sep="\t", file=paste("pcoa_PICRUSt_", KEGGLevels, paste0(tissueKept,collapse="_"), ".txt", sep=""))
+     write.table(myMDS$CA$eig,file=paste("eigenValues_PICRUSt_", KEGGLevels, paste0(tissueKept,collapse="_"), ".txt", sep=""), sep="\t")
 }
 
 
 tissueKept <- "Feces"
 
 
-for(taxa in taxaLevels )
+for(KEGGLevels in KEGGLevelsLevels )
 {
-    inFileName <- paste( taxa, "_LogNormwithMetadata_R1.txt", sep ="")
+    inFileName <- paste("PICRUSt_", KEGGLevels, "_LogNormwithMetadata.txt", sep ="")
     myT <-read.csv(inFileName,header=TRUE,sep="", na.strings="BLAH")
     numCols <- ncol(myT)
     ## Restrict the tissue focus
     myT<-myT[myT$Sample.Type %in% tissueKept,]
-                          colVector <- c("#a50026", "#d73027", "#f46d43", "#fdae61", "#fee090", "#ffffbf", "#e0f3f8", "#abd9e9", "#74add1", "#4575b4",  "#313695", "#0000ff")[as.numeric(as.factor(myT$Pen.Location))]
+                          colVector <- c("#a50026", "#d73027", "#f46d43", "#fdae61", "#fee090", "#ffff00", "#63dcfe", "#abd9e9", "#74add1", "#4575b4",  "#313695", "#0000ff")[as.numeric(as.factor(myT$Pen.Location))]
 
 
     myMDS <- capscale(myT[,2:(ncol(myT)-numMetadataCols)]~1,distance="bray")
 
-     pdf( paste(taxa, "_", paste0(tissueKept,collapse="_"), "_feces_topMDS.pdf",sep=""))
+     pdf( paste(KEGGLevels, "_PICRUSt_", paste0(tissueKept,collapse="_"), "_feces_topMDS.pdf",sep=""))
      for (xrun in 1:4) {
                  for (yrun in 2:4) {
                      if(xrun == yrun){
                          break
                      }
-                     plot(myMDS$CA$u[,xrun], myMDS$CA$u[,yrun],xlab=paste("MDS",xrun,sep=""), ylab=paste("MDS",yrun,sep=""), main=paste("PCoA at level:", taxa,sep=""), ##xlim=c(-0.5, 0.5), ylim=c(-0.5, 0.5),
+                     plot(myMDS$CA$u[,xrun], myMDS$CA$u[,yrun],xlab=paste("MDS",xrun,sep=""), ylab=paste("MDS",yrun,sep=""), main=paste("PCoA at level:", KEGGLevels,sep=""), ##xlim=c(-0.5, 0.5), ylim=c(-0.5, 0.5),
                            cex=2.0,
                           ## cex = log(myT$Age),
 
@@ -121,32 +121,32 @@ for(taxa in taxaLevels )
 
          dev.off()
 
-     write.table(myMDS$CA$u, sep="\t", file=paste("pcoa_feces_", taxa, paste0(tissueKept,collapse="_"), ".txt", sep=""))
-     write.table(myMDS$CA$eig,file=paste("eigenValues_feces_", taxa, paste0(tissueKept,collapse="_"), ".txt", sep=""), sep="\t")
+     write.table(myMDS$CA$u, sep="\t", file=paste("pcoa_feces_PICRUSt_", KEGGLevels, paste0(tissueKept,collapse="_"), ".txt", sep=""))
+     write.table(myMDS$CA$eig,file=paste("eigenValues_feces_PICRUSt_", KEGGLevels, paste0(tissueKept,collapse="_"), ".txt", sep=""), sep="\t")
 }
 
 tissueKept <- "LI Mucosa"
 
 
-for(taxa in taxaLevels )
+for(KEGGLevels in KEGGLevelsLevels )
 {
-    inFileName <- paste( taxa, "_LogNormwithMetadata_R1.txt", sep ="")
+    inFileName <- paste("PICRUSt_", KEGGLevels, "_LogNormwithMetadata.txt", sep ="")
     myT <-read.csv(inFileName,header=TRUE,sep="", na.strings="BLAH")
     numCols <- ncol(myT)
     ## Restrict the tissue focus
     myT<-myT[myT$Sample.Type %in% tissueKept,]
-                          colVector <- c("#a50026", "#d73027", "#f46d43", "#fdae61", "#fee090", "#ffffbf", "#e0f3f8", "#abd9e9", "#74add1", "#4575b4",  "#313695", "#0000ff")[as.numeric(as.factor(myT$Pen.Location))]
+                          colVector <- c("#a50026", "#d73027", "#f46d43", "#fdae61", "#fee090", "#ffff00", "#63dcfe", "#abd9e9", "#74add1", "#4575b4",  "#313695", "#0000ff")[as.numeric(as.factor(myT$Pen.Location))]
 
 
     myMDS <- capscale(myT[,2:(ncol(myT)-numMetadataCols)]~1,distance="bray")
 
-     pdf( paste(taxa, "_", paste0(tissueKept,collapse="_"), "_mucosa_topMDS.pdf",sep=""))
+     pdf( paste(KEGGLevels, "_PICRUSt_", paste0(tissueKept,collapse="_"), "_mucosa_topMDS.pdf",sep=""))
      for (xrun in 1:4) {
                  for (yrun in 2:4) {
                      if(xrun == yrun){
                          break
                      }
-                     plot(myMDS$CA$u[,xrun], myMDS$CA$u[,yrun],xlab=paste("MDS",xrun,sep=""), ylab=paste("MDS",yrun,sep=""), main=paste("PCoA at level:", taxa,sep=""), ##xlim=c(-0.5, 0.5), ylim=c(-0.5, 0.5),
+                     plot(myMDS$CA$u[,xrun], myMDS$CA$u[,yrun],xlab=paste("MDS",xrun,sep=""), ylab=paste("MDS",yrun,sep=""), main=paste("PCoA at level:", KEGGLevels,sep=""), ##xlim=c(-0.5, 0.5), ylim=c(-0.5, 0.5),
                            cex=2.0,
                           ## cex = log(myT$Age),
 
@@ -169,32 +169,32 @@ for(taxa in taxaLevels )
 
          dev.off()
 
-     write.table(myMDS$CA$u, sep="\t", file=paste("pcoa_mucosa_", taxa, paste0(tissueKept,collapse="_"), ".txt", sep=""))
-     write.table(myMDS$CA$eig,file=paste("eigenValues_mucosa_", taxa, paste0(tissueKept,collapse="_"), ".txt", sep=""), sep="\t")
+     write.table(myMDS$CA$u, sep="\t", file=paste("pcoa_mucosa_PICRUSt_", KEGGLevels, paste0(tissueKept,collapse="_"), ".txt", sep=""))
+     write.table(myMDS$CA$eig,file=paste("eigenValues_mucosa_PICRUSt_", KEGGLevels, paste0(tissueKept,collapse="_"), ".txt", sep=""), sep="\t")
 }
 
 tissueKept <- "LI Lumen"
 
 
-for(taxa in taxaLevels )
+for(KEGGLevels in KEGGLevelsLevels )
 {
-    inFileName <- paste( taxa, "_LogNormwithMetadata_R1.txt", sep ="")
-    myT <-read.csv(inFileName,header=TRUE,sep="", na.strings="BLAH")
+    inFileName <- paste("PICRUSt_", KEGGLevels, "_LogNormwithMetadata.txt", sep ="")
+    myT <-read.csv(inFileName, header=TRUE, sep="", na.strings="BLAH")
     numCols <- ncol(myT)
     ## Restrict the tissue focus
     myT<-myT[myT$Sample.Type %in% tissueKept,]
-                          colVector <- c("#a50026", "#d73027", "#f46d43", "#fdae61", "#fee090", "#ffffbf", "#e0f3f8", "#abd9e9", "#74add1", "#4575b4",  "#313695", "#0000ff")[as.numeric(as.factor(myT$Pen.Location))]
+                          colVector <- c("#a50026", "#d73027", "#f46d43", "#fdae61", "#fee090", "#ffff00", "#63dcfe", "#abd9e9", "#74add1", "#4575b4",  "#313695", "#0000ff")[as.numeric(as.factor(myT$Pen.Location))]
 
 
     myMDS <- capscale(myT[,2:(ncol(myT)-numMetadataCols)]~1,distance="bray")
 
-     pdf( paste(taxa, "_", paste0(tissueKept,collapse="_"), "_lumen_topMDS.pdf",sep=""))
+     pdf( paste(KEGGLevels, "_PICRUSt_", paste0(tissueKept,collapse="_"), "_lumen_topMDS.pdf",sep=""))
      for (xrun in 1:4) {
                  for (yrun in 2:4) {
                      if(xrun == yrun){
                          break
                      }
-                     plot(myMDS$CA$u[,xrun], myMDS$CA$u[,yrun],xlab=paste("MDS",xrun,sep=""), ylab=paste("MDS",yrun,sep=""), main=paste("PCoA at level:", taxa,sep=""), ##xlim=c(-0.5, 0.5), ylim=c(-0.5, 0.5),
+                     plot(myMDS$CA$u[,xrun], myMDS$CA$u[,yrun],xlab=paste("MDS",xrun,sep=""), ylab=paste("MDS",yrun,sep=""), main=paste("PCoA at level:", KEGGLevels,sep=""), ##xlim=c(-0.5, 0.5), ylim=c(-0.5, 0.5),
                            cex=2.0,
                           ## cex = log(myT$Age),
 
@@ -217,6 +217,6 @@ for(taxa in taxaLevels )
 
          dev.off()
 
-     write.table(myMDS$CA$u, sep="\t", file=paste("pcoa_lumen_", taxa, paste0(tissueKept,collapse="_"), ".txt", sep=""))
-     write.table(myMDS$CA$eig,file=paste("eigenValues_lumen_", taxa, paste0(tissueKept,collapse="_"), ".txt", sep=""), sep="\t")
+     write.table(myMDS$CA$u, sep="\t", file=paste("pcoa_lumen_PICRUSt_", KEGGLevels, paste0(tissueKept,collapse="_"), ".txt", sep=""))
+     write.table(myMDS$CA$eig,file=paste("eigenValues_lumen_PICRUSt_", KEGGLevels, paste0(tissueKept,collapse="_"), ".txt", sep=""), sep="\t")
 }

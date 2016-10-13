@@ -15,6 +15,15 @@ library("vegan")
 ## Run Simple Models
 ### taxa ~ antibioticConc + (1|timePoint)
 
-setwd("/Users/mbrown67
+## Model 1
+## taxa ~ SummedAntibiotic Concentration
 
-inFileName <-
+## Model 2
+## taxa ~ Environmental Features
+
+## Model 3
+## diversity ~ SummedAntibiotic Concentration
+
+## Model 4
+## MDS Axis ~ SummedAntibiotic Concentration
+
