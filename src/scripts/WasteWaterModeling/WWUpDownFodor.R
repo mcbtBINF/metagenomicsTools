@@ -40,17 +40,7 @@ for( i in 2:3 )
 
         ## Get the technical replicate from the deepest sequenced sample.
         savemyT <- myT[FALSE,]
-        ## for( eachTime in c(1, 2, 3, 4)) {
-        ##     for(loc in unique(myT$Sample)){
-        ##         myTloctime <- myT[myT$Sample == loc & myT$Timepoint == eachTime,]
-        ##         rep<-myTloctime[which(myTloctime$sequenceCount == max(myTloctime$sequenceCount)),]
-        ##         ## print(c(tp, loc, rep))
-        ##         ## print(rep)
-        ##         ## The order here may be backwards
-        ##         savemyT <- rbind(savemyT, rep)
-        ##     }
-        ## }
-        for (eachVal in myT$Sample.ID) {
+        for (eachVal in unique(myT$Sample.ID)) {
             myTperSample <- myT[myT$Sample.ID == eachVal,]
             rep<-myTperSample[which(myTperSample$sequenceCount == max(myTperSample$sequenceCount)),]
             savemyT <- rbind(savemyT, rep)
@@ -83,7 +73,7 @@ for( i in 2:3 )
 			updownBinary <- ifelse( justStreams$Sample == "DS A" | justStreams$Sample == "DS B" ,
 			"down", "up"  )
 
-			myFrame <- data.frame(streamBugs ,locations, updownBinary, justStreams$Timestamp)
+			myFrame <- data.frame(streamBugs,locations, updownBinary, justStreams$Timestamp)
 
 			stripchart(streamBugs ~ locations,
                                    data = myFrame,vertical = TRUE, pch = 21, add=TRUE, ylab = names[index])
@@ -105,6 +95,8 @@ for( i in 2:3 )
                         boxplot( streamBugs ~ justStreams$Timepoint, main = paste("Time \nuncorrected p-value", format(pValuesTimepointFromFull[index], digits=3)))
                         stripchart(streamBugs ~ justStreams$Timepoint,
 				data = myFrame,vertical = TRUE, pch = 21, add=TRUE, ylab = names[index])
+                        plot(justStreams$Timepoint, streamBugs, col=ifelse(justStreams$Location == "Mallard Creek", "red", "blue"), pch = ifelse(updownBinary == "up", 24, 25), main="Red=Mallard \npointed-up triangle=upstream")
+
                         mtext(unlist(strsplit(names[index],split="\\."))[i], outer=TRUE, cex = 1.5)
 
 			index = index + 1
