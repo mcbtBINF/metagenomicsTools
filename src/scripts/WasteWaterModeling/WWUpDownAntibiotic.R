@@ -30,7 +30,8 @@ for( i in 2:3 )
         gsub("ND|<LOQ", 0, x)
         }))
 
-        pValueLocationsFromFull <- vector()
+
+	pValueLocationsFromFull <- vector()
 	pValueUpDownFromFull<- vector()
 	pValuesTimepointFromFull <- vector()
 	pValuesUpDownLocationInteraction <- vector()
@@ -56,12 +57,10 @@ for( i in 2:3 )
         justFirst <- as.numeric(as.POSIXlt(strptime(justFirst, "%m/%d/%Y")))
         myT$Timestamp <- justFirst
 
-	for( j in 2: (metadataStart -1) )
+	for( j in (metadataStart + 16):(metadataStart + 25))
 	{
 		par(mfrow=c(2,2), oma = c(0, 0, 2, 0))
 		bug <- myT[,j]
-		if( sum(bug != 0) > nrow(myT) / 4)
-		{
 			justStreams <- myT[(myT$Location == "Mallard Creek" |myT$Location ==  "Sugar Creek") &
 						 (myT$Sample == "UP A" |myT$Sample == "UP B" |
 						 		 myT$Sample == "DS A" | myT$Sample == "DS B"), ]
@@ -104,7 +103,6 @@ for( i in 2:3 )
                         mtext(unlist(strsplit(names[index],split="\\."))[i], outer=TRUE, cex = 1.5)
 
 			index = index + 1
-		}
 	}
 
 	hist(pValuesLocation,breaks=20, main="Non-parametric Stream")
@@ -125,7 +123,7 @@ for( i in 2:3 )
 	myFrame$adjustedpValuesTimepointFromFull <- p.adjust( myFrame$pValuesTimepointFromFull, method = "BH" )
 	myFrame$adjustedpValuesUpDownLocationInteraction <- p.adjust( myFrame$pValuesUpDownLocationInteraction, method = "BH" )
 
-	write.table(myFrame, file=paste("L", i, "_pValues.txt",sep=""), sep="\t",row.names=FALSE)
+	write.table(myFrame, file=paste("L", i, "_Antibiotic_pValues.txt",sep=""), sep="\t",row.names=FALSE)
 
 }
 
