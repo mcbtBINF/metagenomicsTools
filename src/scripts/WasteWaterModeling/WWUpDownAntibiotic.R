@@ -20,16 +20,13 @@ getColumnIndex <- function(myT, s)
 }
 
 
-#i <- 2
-for( i in 2:3 )
-{
+i <- 2
 	fileName <- paste("LogNormwithMetadata_L_", i, ".txt", sep = "")
 	myT <- read.table(fileName, sep="\t", header=TRUE)
 
         myT <- data.frame(lapply(myT, function(x) {
-        gsub("ND|<LOQ", 0, x)
+            gsub("ND|<LOQ", 0, x)
         }))
-
 
 	pValueLocationsFromFull <- vector()
 	pValueUpDownFromFull<- vector()
@@ -41,13 +38,13 @@ for( i in 2:3 )
 	pValuesLocation <- vector()
 	names <- vector()
 	index <-1
-	pdf( paste("L", i, ".pdf"))
+	pdf( paste("Antibiotics_L", i, ".pdf"))
 
         ## Get the technical replicate from the deepest sequenced sample.
         savemyT <- myT[FALSE,]
         for (eachVal in unique(myT$Sample.ID)) {
             myTperSample <- myT[myT$Sample.ID == eachVal,]
-            rep<-myTperSample[which(myTperSample$sequenceCount == max(myTperSample$sequenceCount)),]
+            rep<-myTperSample[which(as.numeric(myTperSample$sequenceCount) == max(as.numeric(myTperSample$sequenceCount))),]
             savemyT <- rbind(savemyT, rep)
         }
         myT <- savemyT
@@ -60,12 +57,12 @@ for( i in 2:3 )
 	for( j in (metadataStart + 16):(metadataStart + 25))
 	{
 		par(mfrow=c(2,2), oma = c(0, 0, 2, 0))
-		bug <- myT[,j]
+		## bug <- myT[,j]
 			justStreams <- myT[(myT$Location == "Mallard Creek" |myT$Location ==  "Sugar Creek") &
 						 (myT$Sample == "UP A" |myT$Sample == "UP B" |
 						 		 myT$Sample == "DS A" | myT$Sample == "DS B"), ]
 			locations <- factor(justStreams$Location)
-			streamBugs <- justStreams[,j]
+			streamBugs <- as.numeric(justStreams[,j])
 			#myLm <- lm( streamBugs ~ locations)
 			names[index] <- names(justStreams)[j]
 			pValuesLocation[index] <- wilcox.test( streamBugs[myT$Location == "Mallard Creek"] ,
@@ -98,9 +95,10 @@ for( i in 2:3 )
                         boxplot( streamBugs ~ justStreams$Timepoint, main = paste("Time \nuncorrected p-value", format(pValuesTimepointFromFull[index], digits=3)))
                         stripchart(streamBugs ~ justStreams$Timepoint,
 				data = myFrame,vertical = TRUE, pch = 21, add=TRUE, ylab = names[index])
-                        plot(justStreams$Timepoint, streamBugs, col=ifelse(justStreams$Location == "Mallard Creek", "red", "blue"), pch = ifelse(updownBinary == "up", 24, 25), main="Red=Mallard \npointed-up triangle=upstream")
+                        ## plot(justStreams$Timepoint, streamBugs, col=ifelse(justStreams$Location == "Mallard Creek", "red", "blue"), pch = ifelse(updownBinary == "up", 24, 25), main="Red=Mallard \npointed-up triangle=upstream")
+                plot(1, type="n", axes=F, xlab="", ylab="")
 
-                        mtext(unlist(strsplit(names[index],split="\\."))[i], outer=TRUE, cex = 1.5)
+                        mtext(names[index], outer=TRUE, cex = 1.5)
 
 			index = index + 1
 	}
@@ -123,7 +121,6 @@ for( i in 2:3 )
 	myFrame$adjustedpValuesTimepointFromFull <- p.adjust( myFrame$pValuesTimepointFromFull, method = "BH" )
 	myFrame$adjustedpValuesUpDownLocationInteraction <- p.adjust( myFrame$pValuesUpDownLocationInteraction, method = "BH" )
 
-	write.table(myFrame, file=paste("L", i, "_Antibiotic_pValues.txt",sep=""), sep="\t",row.names=FALSE)
+	write.table(myFrame, file=paste("Antibiotic_pValues.txt",sep=""), sep="\t",row.names=FALSE)
 
-}
 

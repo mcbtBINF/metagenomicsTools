@@ -21,14 +21,14 @@ getColumnIndex <- function(myT, s)
 
 
 #i <- 2
-for( i in 2:3 )
+for( i in 2:7 )
 {
 	fileName <- paste("LogNormwithMetadata_L_", i, ".txt", sep = "")
 	myT <- read.table(fileName, sep="\t", header=TRUE)
 
-        myT <- data.frame(lapply(myT, function(x) {
-        gsub("ND|<LOQ", 0, x)
-        }))
+        ## myT <- data.frame(lapply(myT, function(x) {
+        ## gsub("ND|<LOQ", 0, x)
+        ## }))
 
         pValueLocationsFromFull <- vector()
 	pValueUpDownFromFull<- vector()
@@ -46,7 +46,7 @@ for( i in 2:3 )
         savemyT <- myT[FALSE,]
         for (eachVal in unique(myT$Sample.ID)) {
             myTperSample <- myT[myT$Sample.ID == eachVal,]
-            rep<-myTperSample[which(myTperSample$sequenceCount == max(myTperSample$sequenceCount)),]
+            rep<-myTperSample[which(as.numeric(myTperSample$sequenceCount) == max(as.numeric(myTperSample$sequenceCount))),]
             savemyT <- rbind(savemyT, rep)
         }
         myT <- savemyT
@@ -101,7 +101,8 @@ for( i in 2:3 )
 				data = myFrame,vertical = TRUE, pch = 21, add=TRUE, ylab = names[index])
                         plot(justStreams$Timepoint, streamBugs, col=ifelse(justStreams$Location == "Mallard Creek", "red", "blue"), pch = ifelse(updownBinary == "up", 24, 25), main="Red=Mallard \npointed-up triangle=upstream")
 
-                        mtext(unlist(strsplit(names[index],split="\\."))[i], outer=TRUE, cex = 1.5)
+                        ## mtext(unlist(strsplit(names[index],split="\\."))[i], outer=TRUE, cex = 1.5)
+                        mtext(names[index], outer=TRUE, cex = 0.75)
 
 			index = index + 1
 		}
