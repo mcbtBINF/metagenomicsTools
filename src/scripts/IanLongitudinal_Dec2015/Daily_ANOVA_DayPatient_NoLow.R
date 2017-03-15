@@ -15,8 +15,8 @@ taxaLevels <- c("phylum","class","order","family","genus")
 
 for(t in taxaLevels )
 {
-        pdf( paste(t, "_DayPatient_ANOVA_NoLow_plots.pdf", sep = ""))
-      	inFileName <- paste(t, "LogNormalwithMetadataDailyR2_Edit.txt", sep="")
+        pdf( paste(t, "TEST_DayPatient_ANOVA_NoLow_plots.pdf", sep = ""))
+      	inFileName <- paste(t, "LogNormalwithMetadataDaily_Edit.txt", sep="")
 	myT <-read.table(inFileName, header=TRUE, sep="\t")
 	numCols <- ncol(myT)
         # I don't think that will necessarily be right.
@@ -125,26 +125,26 @@ for(t in taxaLevels )
 
                         #Graphs for each of the models here...
                         # These are corrected p-values now
-                        graphMain = paste(names(myT)[i], "\n",
-                        "pDay=", format(dFrameDayPatient[index, 13], digits=3), "\n",
-                        "pPatientB=", format(dFrameDayPatient[index, 14], digits=3),
-                        "pPatientC=", format(dFrameDayPatient[index, 15], digits=3), "\n",
+                        graphMain = paste(names(myT)[i])##, "\n",
+                        ## "pDay=", format(dFrameDayPatient[index, 13], digits=3), "\n",
+                        ## "pPatientB=", format(dFrameDayPatient[index, 14], digits=3),
+                        ## "pPatientC=", format(dFrameDayPatient[index, 15], digits=3), "\n",
                         #"pEnergyIntake=", format(dFrameDayPatient(index,[4], digits=3), "\n",
-                        "pDay:PatientB=", format(dFrameDayPatient[index,16], digits=3),
-                        "pDay:PatientC=", format(dFrameDayPatient[index, 17], digits=3))
+                        ## "pDay:PatientB=", format(dFrameDayPatient[index,16], digits=3),
+                        ## "pDay:PatientC=", format(dFrameDayPatient[index, 17], digits=3))
                         par(mar = c(5, 4, 6, 2))
 
-                        plot(Day, taxaType, col=colors, main=graphMain, pch=16)
-                        abline(a = DayPatient$coef[1], b = DayPatient$coef[2])
-                        abline(a = DayPatient$coef[1] + DayPatient$coef[3], b = DayPatient$coef[5] + DayPatient$coef[2], col="BLUE")
-                        abline(a = DayPatient$coef[1] + DayPatient$coef[4], b = DayPatient$coef[6] + DayPatient$coef[2], col="RED")
+                        plot(Day, taxaType, col=colors, main=graphMain, pch=16, ylab="Log Normalized Abundance", xlab="Days Under Treatment")
+                        ## abline(a = DayPatient$coef[1], b = DayPatient$coef[2])
+                        ## abline(a = DayPatient$coef[1] + DayPatient$coef[3], b = DayPatient$coef[5] + DayPatient$coef[2], col="BLUE")
+                        ## abline(a = DayPatient$coef[1] + DayPatient$coef[4], b = DayPatient$coef[6] + DayPatient$coef[2], col="RED")
 
                         index = index + 1
 		}
             }
 
         #Finally, writing out the p-values and BH adjusted p-values
-        write.table(dFrameDayPatient, file = paste("pValuesLongPatient_Day_ANOVA_NoLow_", t, ".txt", sep=""), row.names=FALSE, sep="\t")
+        write.table(dFrameDayPatient, file = paste("TEST_pValuesLongPatient_Day_ANOVA_NoLow_", t, ".txt", sep=""), row.names=FALSE, sep="\t")
 
     dev.off()
 }

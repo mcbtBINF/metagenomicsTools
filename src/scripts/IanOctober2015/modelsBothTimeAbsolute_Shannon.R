@@ -8,9 +8,15 @@ library("pscl")
 setwd("/Users/mbrown67/Documents/Fodor/Datasets/CarrollData/BombCalorimetry/")
 
 taxaLevels <- c("phylum","class","order","family","genus")
-indexS <- 1
+index <- 1
 ShannonP <- list()
 ShannonSummary <- list()
+names <- vector()
+myLmpVal <- list()
+pValuesPatientID <- vector()
+pValuesCalorimetry <- vector()
+pValuesTime <- vector()
+intraclassCoefficient <- vector()
 
 for(taxa in taxaLevels )
 {
@@ -23,13 +29,13 @@ for(taxa in taxaLevels )
     ##	myT <- myT[ myT$timepoint == "2" &  ! is.na(myT$calorimetryData), ]
     myT <- myT[myT$Sample != 712,]
     ##        myT <- myT[myT$Time == 1,]
-    names <- vector()
-    pValuesPatientID <- vector()
-    pValuesCalorimetry <- vector()
-    pValuesTime <- vector()
+    ## names <- vector()
+    ## pValuesPatientID <- vector()
+    ## pValuesCalorimetry <- vector()
+    ## pValuesTime <- vector()
     ## meanBug <- vector()
 
-    index <- 1
+    ## index <- 1
 
     pdf( paste(taxa, "_BothTimes_Absolute_Shannon.pdf", sep=""))
     myT$Shannon <- apply(myT[,3:(ncol(myT)-7)],1,diversity)
@@ -49,11 +55,11 @@ for(taxa in taxaLevels )
 
     fullModelLME <- lme(Shannon~  calorimetry + time, method="REML", random = ~1|factor(patientID), data = myFrame)
 
-    pValuesCalorimetry[index] <- anova(fullModelLME)$"p-value"[2]
-    pValuesTime[index] <- anova(fullModelLME)$"p-value"[3]
-    pValuesPatientID[index] <-  anova(fullModelLME, reducedModel)$"p-value"[2]
-    intraclassCoefficient<- coef(fullModel$modelStruct[1]$corStruct,unconstrained=FALSE)[[1]]
-
+    pValuesCalorimetry[[index]] <- anova(fullModelLME)$"p-value"[2]
+    pValuesTime[[index]] <- anova(fullModelLME)$"p-value"[3]
+    pValuesPatientID[[index]] <-  anova(fullModelLME, reducedModel)$"p-value"[2]
+    intraclassCoefficient[[index]]<- coef(fullModel$modelStruct[1]$corStruct,unconstrained=FALSE)[[1]]
+    names[[index]] <- taxa
 
     ## pValuesCalorimetry[index] <- anova(fullModel)$"Pr(>F)"[1]
     ## names[index] = names(myT)[i]
@@ -66,8 +72,8 @@ for(taxa in taxaLevels )
     ## plot( bug ~ calorimetry, ylab = names[index],
     ##      main = graphMain )
 
-    indexS <- indexS + 1
-
+    ## indexS <- indexS + 1
+    index = index + 1
 
     ## for( i in 3:(numCols - 7))
     ##     if( sum(myT[,i] != 0 ) > nrow(myT) / 4 )
@@ -110,10 +116,24 @@ for(taxa in taxaLevels )
 
     ## index=index+1
 
-    dFrame <- data.frame( taxa, pValuesCalorimetry, pValuesTime, pValuesPatientID, intraclassCoefficient)
-    dFrame <- dFrame [order(dFrame$pValuesCalorimetry),]
+##    dFrame <- data.frame( taxa, pValuesCalorimetry, pValuesTime, pValuesPatientID, intraclassCoefficient)
+##    dFrame <- dFrame [order(dFrame$pValuesCalorimetry),]
 
 
-    write.table(dFrame, file=paste("pValuesFor_", taxa, "_Calorimetry_BothTimes_Patient_ABSOLUTE_Shannon.txt",sep=""), sep="\t",row.names=FALSE)
+##    write.table(dFrame, file=paste("pValuesFor_", taxa, "_Calorimetry_BothTimes_Patient_ABSOLUTE_Shannon.txt",sep=""), sep="\t",row.names=FALSE)
     dev.off()
 }
+
+dFrame <- data.frame(pValuesCalorimetry, pValuesTime, pValuesPatientID, intraclassCoefficient)
+##    dFrame <- data.frame( myLmpVal)
+    ## dFrame <- t(dFrame)
+    dFramemyLm <- data.frame(names, dFrame)
+
+    for (m in 2:(dim(dFramemyLm)[2]-1))
+    {
+        dFramemyLm[,dim(dFramemyLm)[2] + 1] <- p.adjust(dFramemyLm[,m], method = "BH")
+        colnames(dFramemyLm)[ncol(dFramemyLm)]<-paste0("adj", colnames(dFramemyLm)[m])
+    }
+
+    write.table(dFramemyLm, file=paste("pValuesFor_", taxa, "_Calorimetry_BothTimes_Patient_ABSOLUTE_Shannon.txt",sep=""), sep="\t",row.names=FALSE)
+

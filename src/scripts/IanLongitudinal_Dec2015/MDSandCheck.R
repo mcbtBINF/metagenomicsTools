@@ -14,9 +14,9 @@ for(taxa in taxaLevels )
     rawFileName <- paste0("pivoted_", taxa, "asColumns.txt")
     myTCheck <- read.table(rawFileName, header=TRUE, sep="\t")
 
-                                        # Remove the row labels
+                                        ## Remove the row labels
 
-                                        # Restricted to the forward reads now.
+                                        ## Restricted to the forward reads now.
     myTCheck <- myTCheck[1:147,]
     rownames(myTCheck) <- myTCheck$sample
     myTCheck <- myTCheck[,-1]
@@ -24,11 +24,11 @@ for(taxa in taxaLevels )
 
 
 ## Drop bad samples (will manually have to iterate this...
-    myTCheck<-myTCheck[!(rownames(myTCheck) %in% c("37", "45", "52", "58", "7", "9"
+    myTCheck<-myTCheck[!(rownames(myTCheck) %in% c("9" ## "37", "45", "52", "58", "7", "9"
 
     ## ,"B20", "C25", "C19", "C12", "B22", "46"
     ##, "B10"
- )),]
+    )),]
 
     mySums <- rowSums(myTCheck)
 
@@ -44,7 +44,7 @@ for(taxa in taxaLevels )
 
 
     ## inFileName <- paste( "pivoted_", taxa, "asColumnsLogNormal_R2.txt", sep ="")
-    inFileName <- paste(taxa, "LogNormalwithMetadataDailyR2_Edit.txt", sep="")
+    inFileName <- paste(taxa, "LogNormalwithMetadata_Edit.txt", sep="")
 #    metadataFileName <- paste( taxa, "TaxaAsColumnsLogNormWithMetaData.txt", sep ="")
     myT <-read.table(inFileName,header=TRUE,sep="\t")
 #    	myMeta <-read.table(metadataFileName,header=TRUE,sep="\t")
@@ -54,10 +54,10 @@ for(taxa in taxaLevels )
     myT <- myT[ !is.na(myT[2]), ]
     rownames(myT)<-myT[,1]
     myT<-myT[,-1]
-     myT<-myT[!(rownames(myT) %in% c("37", "45", "52", "58", "7", "9"
+    myT<-myT[!(rownames(myT) %in% c("9" ## "37", "45", "52", "58", "7", "9"
     ## ,"B20", "C25", "C19", "C12", "B22", "46",
     ## "B10"
- )),]
+     )),]
 
 
 

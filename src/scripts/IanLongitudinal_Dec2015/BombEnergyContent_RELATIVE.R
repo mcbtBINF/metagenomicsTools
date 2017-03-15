@@ -19,7 +19,7 @@ for(t in taxaLevels )
     inFileName <- paste(t,"_LogNormalwithMetadataWeekly_NearestSamplewithDay_withCals.txt", sep="")
     myT <-read.table(inFileName,header=TRUE,sep="\t")
     numCols <- ncol(myT)
-    myColClasses <- c(rep("character",2),"numeric", "character", rep("numeric", numCols-4))
+    myColClasses <- c("character", rep("numeric", numCols-1))
     myT <-read.table(inFileName,header=TRUE,sep="\t",colClasses=myColClasses)
     myT <- myT[ !is.na(myT[2]), ]
 
