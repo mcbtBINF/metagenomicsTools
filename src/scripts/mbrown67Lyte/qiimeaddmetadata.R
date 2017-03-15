@@ -4,9 +4,8 @@ setwd("/Users/mbrown67/Documents/Fodor/Datasets/MarkExperiment/ArgonneSequencing
 
 myMetadata<-read.csv("CompiledMetadataFINAL.csv", header=TRUE, comment.char="@")
 colnames(myMetadata)[1] <- "MatchFile"
+myMetadata$Cage <- paste(myMetadata$Sex, myMetadata$Housing)
 myMetadata$MatchFile <- as.character(myMetadata$MatchFile)
-## myMetadata$Sex <- unlist(lapply(strsplit(as.character(myMetadata$Experiment..Sample.info), split=" "),"[[",2))
-## myMetadata$Experiment..Sample.info <- unlist(lapply(strsplit(as.character(myMetadata$Experiment..Sample.info), split=" "),"[[",1))
 
 
 setwd("/Users/mbrown67/Documents/Fodor/Datasets/MarkExperiment/ArgonneSequencing/JanuaryResequencing/rawData/rg_results/")
