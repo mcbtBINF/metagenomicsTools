@@ -1,15 +1,23 @@
 rm(list=ls())
 
+## Make sure that the Excel export didn't hurt the decimals
 setwd("/Users/mbrown67/Documents/Fodor/Datasets/MarkExperiment/ArgonneSequencing/JanuaryResequencing/metadata/")
 
-myMetadata<-read.csv("CompiledMetadataFINAL.csv", header=TRUE, comment.char="@")
+myColClasses <- c(rep("character", 3), "numeric", rep("character", 4), "numeric", "character", "numeric", rep("character", 8), rep("numeric", 39))
+myMetadata<-read.table("CompiledMetadataFINAL.csv", header=TRUE, comment.char="@", sep=",", colClasses = myColClasses)
+
 colnames(myMetadata)[1] <- "MatchFile"
 myMetadata$Cage <- paste(myMetadata$Sex, myMetadata$Housing)
-myMetadata$MatchFile <- as.character(myMetadata$MatchFile)
+
+## myMetadata$MatchFile <- as.character(myMetadata$MatchFile)
 
 
+## Read in the columnclasses carefully.
 setwd("/Users/mbrown67/Documents/Fodor/Datasets/MarkExperiment/ArgonneSequencing/JanuaryResequencing/rawData/rg_results/")
-myT <- read.csv("LyteSharon_r01_cr.txt", sep="\t", header=TRUE, comment.char="@")
+
+## Will later be able to go through this and work on the other datasets.
+## This code can be reused to get through the qiime taxonomic levels.
+myT <- read.table("LyteSharon_r01_cr.txt", sep="\t", header=TRUE, comment.char="@")
 
 otutoTaxa <- cbind(myT$OTUID, myT$taxonomy)
 
