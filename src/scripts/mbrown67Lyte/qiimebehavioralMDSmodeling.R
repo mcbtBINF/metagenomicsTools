@@ -49,7 +49,7 @@ for(i in MDSlist){
     cage <- factor(myT$Cage)
     pdf( paste(names(MDSlist)[iter],".pdf", sep=""))
     for(j in 1:10) {
-        par(mfrow=c(2,2))
+        par(mfrow=c(2,2), oma = c(0, 0, 2, 0))
         MDSaxis <- i[,j]
         myFrame <- data.frame(MDSaxis, sex, group, cage)
 
@@ -65,7 +65,7 @@ for(i in MDSlist){
         pValuesSexGroupFromMixedInteraction[index] <- mixedAnova$"p-value"[4]
 
         pValuesCage[index] <- anova(lm( MDSaxis ~ cage ))$"Pr(>F)"[1]
-      			boxplot( bug ~ group,
+      			boxplot( MDSaxis ~ group,
         main = paste( names(MDSlist)[iter], format(pValuesGroupFromMixed[index],digits=3)))
 
     stripchart(MDSaxis ~ group ,
@@ -82,7 +82,7 @@ for(i in MDSlist){
             main=format(pValuesCage[index],digits=3))
     stripchart(MDSaxis ~ cage,
                data = myFrame,vertical = TRUE, pch = 21, add=TRUE, ylab = names(MDSlist)[iter] )
-
+                               mtext(paste(names(MDSlist)[iter], "axis",j), outer=TRUE, cex = 1.5)
 
     index = index + 1
 }
