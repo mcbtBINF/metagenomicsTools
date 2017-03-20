@@ -156,6 +156,153 @@ for (xrun in 1:4) {
 
 dev.off()
 
+tissuemyT <- myT[myT$Source == "Cecal Content",]
+## Display only 2 tissue sample types
+myMDS <- capscale(tissuemyT[,(endMetadataIndex +1):ncol(tissuemyT)]~1,distance="bray")
+
+write.table(myMDS$CA$u, sep="\t", file=paste("LyteSharon_r01_cecal_pcoa.txt",sep=""))
+write.table(myMDS$CA$eig,file=paste("LyteSharon_r01_cecal_eigenValues.txt", sep=""), sep="\t")
+
+percentVariance <- eigenvals(myMDS)/sum(eigenvals(myMDS))
+
+pdf( paste("qiime_", "cecal_R1_topMDS.pdf",sep=""))
+for (xrun in 1:4) {
+    for (yrun in 2:4) {
+        if(xrun == yrun){
+            break
+        }
+        par(mar=c(5.1, 4.1, 4.1, 8.1), xpd=TRUE, mfrow = c(2,2))
+        plot(myMDS$CA$u[,xrun], myMDS$CA$u[,yrun],
+             xlab=paste("MDS Axis ", xrun, ": ", format(percentVariance[xrun],digits=3), sep=""),
+             ylab=paste("MDS Axis ", yrun, ": ", format(percentVariance[yrun],digits=3), sep=""),
+             main="PCoA at otu level \n(Sample Tissue)", cex=2.0, ##bty="L",
+             pch = 16,
+             col=ifelse(tissuemyT$Source=="Cecal Content", "green", ifelse(tissuemyT$Source == "duo", "black", ifelse(tissuemyT$Source == "feces", "brown", ifelse(tissuemyT$Source == "ileum", "yellow", "red")))))
+            par(xpd=TRUE)
+
+            legend("topright", inset=c(-0.9,0),
+                   c("Cecal Content", "Duodenum", "Feces", "Ileum", "Jejunum"),
+        pch = 16, cex = 1.1,
+                    col=c("green", "blue", "brown", "yellow", "red"))
+
+        plot(myMDS$CA$u[,xrun], myMDS$CA$u[,yrun],
+             xlab=paste("MDS Axis ", xrun, ": ", format(percentVariance[xrun],digits=3), sep=""),
+             ylab=paste("MDS Axis ", yrun, ": ", format(percentVariance[yrun],digits=3), sep=""),
+             main="PCoA at otu level \n(Mouse Sex)", cex=2.0, ##bty="L",
+             pch = 16,
+             col=ifelse(tissuemyT$Sex == "male", "blue", "pink"))
+                    par(xpd=TRUE)
+
+            legend("topright", inset=c(-0.9,0),
+                   c("Male", "Female"),
+        pch = 16, cex = 1.1,
+                    col=c("blue", "pink"))
+
+        plot(myMDS$CA$u[,xrun], myMDS$CA$u[,yrun],
+             xlab=paste("MDS Axis ", xrun, ": ", format(percentVariance[xrun],digits=3), sep=""),
+             ylab=paste("MDS Axis ", yrun, ": ", format(percentVariance[yrun],digits=3), sep=""),
+             main="PCoA at otu level \n(Stress/Unstressed)", cex=2.0, ##bty="L",
+             pch = 16,
+             col=ifelse(tissuemyT$Exp.or.Ctrl == "Exp", "red", "black"))
+                            par(xpd=TRUE)
+
+            legend("topright", inset=c(-0.9,0),
+                   c("Experiment", "Control"),
+        pch = 16, cex = 1.1,
+                    col=c("red", "black"))
+
+
+        plot(myMDS$CA$u[,xrun], myMDS$CA$u[,yrun],
+             xlab=paste("MDS Axis ", xrun, ": ", format(percentVariance[xrun],digits=3), sep=""),
+             ylab=paste("MDS Axis ", yrun, ": ", format(percentVariance[yrun],digits=3), sep=""),
+             main="PCoA at otu level \n(Cage)", cex=2.0, ##bty="L",
+             pch = 16,
+             col=ifelse(tissuemyT$Cage=="female #1,2,3,4 in same cage", "green", ifelse(tissuemyT$Cage =="female #13,14,15,16 in same cage", "blue", ifelse(tissuemyT$Cage == "female #5,6,7,8 in same cage", "brown", ifelse(tissuemyT$Cage == "female #9,10,11,12 in same cage", "yellow", ifelse(tissuemyT$Cage == "male #1,2,3,4 in same cage", "red", ifelse(tissuemyT$Cage == "male #13,14,15,16 in same cage", "black", ifelse(tissuemyT$Cage == "male #5,6,7,8 in same cage", "pink", "orange"))))))))
+            par(xpd=TRUE)
+
+            legend("topright", inset=c(-0.9,0),
+                   c("FX1", "FC2", "FC1", "FX2", "MX1", "MC2", "MC1", "MX2"),
+        pch = 16, cex = 1.1,
+                    col=c("green", "blue", "brown", "yellow", "red", "black", "pink", "orange"))
+    }
+}
+
+dev.off()
+
+tissuemyT <- myT[myT$Source == "feces",]
+## Display only 2 tissue sample types
+myMDS <- capscale(tissuemyT[,(endMetadataIndex +1):ncol(tissuemyT)]~1,distance="bray")
+
+write.table(myMDS$CA$u, sep="\t", file=paste("LyteSharon_r01_fecal_pcoa.txt",sep=""))
+write.table(myMDS$CA$eig,file=paste("LyteSharon_r01_fecal_eigenValues.txt", sep=""), sep="\t")
+
+percentVariance <- eigenvals(myMDS)/sum(eigenvals(myMDS))
+
+pdf( paste("qiime_", "fecal_R1_topMDS.pdf",sep=""))
+for (xrun in 1:4) {
+    for (yrun in 2:4) {
+        if(xrun == yrun){
+            break
+        }
+        par(mar=c(5.1, 4.1, 4.1, 8.1), xpd=TRUE, mfrow = c(2,2))
+        plot(myMDS$CA$u[,xrun], myMDS$CA$u[,yrun],
+             xlab=paste("MDS Axis ", xrun, ": ", format(percentVariance[xrun],digits=3), sep=""),
+             ylab=paste("MDS Axis ", yrun, ": ", format(percentVariance[yrun],digits=3), sep=""),
+             main="PCoA at otu level \n(Sample Tissue)", cex=2.0, ##bty="L",
+             pch = 16,
+             col=ifelse(tissuemyT$Source=="Cecal Content", "green", ifelse(tissuemyT$Source == "duo", "black", ifelse(tissuemyT$Source == "feces", "brown", ifelse(tissuemyT$Source == "ileum", "yellow", "red")))))
+            par(xpd=TRUE)
+
+            legend("topright", inset=c(-0.9,0),
+                   c("Cecal Content", "Duodenum", "Feces", "Ileum", "Jejunum"),
+        pch = 16, cex = 1.1,
+                    col=c("green", "blue", "brown", "yellow", "red"))
+
+        plot(myMDS$CA$u[,xrun], myMDS$CA$u[,yrun],
+             xlab=paste("MDS Axis ", xrun, ": ", format(percentVariance[xrun],digits=3), sep=""),
+             ylab=paste("MDS Axis ", yrun, ": ", format(percentVariance[yrun],digits=3), sep=""),
+             main="PCoA at otu level \n(Mouse Sex)", cex=2.0, ##bty="L",
+             pch = 16,
+             col=ifelse(tissuemyT$Sex == "male", "blue", "pink"))
+                    par(xpd=TRUE)
+
+            legend("topright", inset=c(-0.9,0),
+                   c("Male", "Female"),
+        pch = 16, cex = 1.1,
+                    col=c("blue", "pink"))
+
+        plot(myMDS$CA$u[,xrun], myMDS$CA$u[,yrun],
+             xlab=paste("MDS Axis ", xrun, ": ", format(percentVariance[xrun],digits=3), sep=""),
+             ylab=paste("MDS Axis ", yrun, ": ", format(percentVariance[yrun],digits=3), sep=""),
+             main="PCoA at otu level \n(Stress/Unstressed)", cex=2.0, ##bty="L",
+             pch = 16,
+             col=ifelse(tissuemyT$Exp.or.Ctrl == "Exp", "red", "black"))
+                            par(xpd=TRUE)
+
+            legend("topright", inset=c(-0.9,0),
+                   c("Experiment", "Control"),
+        pch = 16, cex = 1.1,
+                    col=c("red", "black"))
+
+
+        plot(myMDS$CA$u[,xrun], myMDS$CA$u[,yrun],
+             xlab=paste("MDS Axis ", xrun, ": ", format(percentVariance[xrun],digits=3), sep=""),
+             ylab=paste("MDS Axis ", yrun, ": ", format(percentVariance[yrun],digits=3), sep=""),
+             main="PCoA at otu level \n(Cage)", cex=2.0, ##bty="L",
+             pch = 16,
+             col=ifelse(tissuemyT$Cage=="female #1,2,3,4 in same cage", "green", ifelse(tissuemyT$Cage =="female #13,14,15,16 in same cage", "blue", ifelse(tissuemyT$Cage == "female #5,6,7,8 in same cage", "brown", ifelse(tissuemyT$Cage == "female #9,10,11,12 in same cage", "yellow", ifelse(tissuemyT$Cage == "male #1,2,3,4 in same cage", "red", ifelse(tissuemyT$Cage == "male #13,14,15,16 in same cage", "black", ifelse(tissuemyT$Cage == "male #5,6,7,8 in same cage", "pink", "orange"))))))))
+            par(xpd=TRUE)
+
+            legend("topright", inset=c(-0.9,0),
+                   c("FX1", "FC2", "FC1", "FX2", "MX1", "MC2", "MC1", "MX2"),
+        pch = 16, cex = 1.1,
+                    col=c("green", "blue", "brown", "yellow", "red", "black", "pink", "orange"))
+    }
+}
+
+dev.off()
+
+
 ## tissuemyT <- myT[myT$Source == "feces",]
 behaviormyT <- myT[myT$Source == "feces",]
 ## Display all 5 tissue sample types
