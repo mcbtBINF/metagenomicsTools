@@ -7,7 +7,8 @@ library("pscl")
 library("lmtest")
 library("nlme")
 
-setwd("/Users/mbrown67/Documents/Fodor/Datasets/Wastewater/qiime/closed_reference_merged/countByTaxonomy")
+## setwd("/Users/mbrown67/Documents/Fodor/Datasets/Wastewater/qiime/closed_reference_merged/countByTaxonomy")
+setwd("/Users/mbrown67/Documents/Fodor/Datasets/Wastewater/qiime/de_novo_merged/denovoLevels")
 
 
 getColumnIndex <- function(myT, s)
@@ -23,7 +24,7 @@ getColumnIndex <- function(myT, s)
 #i <- 2
 for( i in 2:7 )
 {
-	fileName <- paste("LogNormwithMetadata_L_", i, ".txt", sep = "")
+	fileName <- paste("denovoLogNormwithMetadata_L_", i, ".txt", sep = "")
 	myT <- read.table(fileName, sep="\t", header=TRUE)
 
         ## myT <- data.frame(lapply(myT, function(x) {
@@ -40,7 +41,7 @@ for( i in 2:7 )
 	pValuesLocation <- vector()
 	names <- vector()
 	index <-1
-	pdf( paste("L", i, ".pdf"))
+	pdf( paste("denovo_L", i, ".pdf"))
 
         ## Get the technical replicate from the deepest sequenced sample.
         savemyT <- myT[FALSE,]
@@ -126,7 +127,7 @@ for( i in 2:7 )
 	myFrame$adjustedpValuesTimepointFromFull <- p.adjust( myFrame$pValuesTimepointFromFull, method = "BH" )
 	myFrame$adjustedpValuesUpDownLocationInteraction <- p.adjust( myFrame$pValuesUpDownLocationInteraction, method = "BH" )
 
-	write.table(myFrame, file=paste("L", i, "_pValues.txt",sep=""), sep="\t",row.names=FALSE)
+	write.table(myFrame, file=paste("denovo_L", i, "_pValues.txt",sep=""), sep="\t",row.names=FALSE)
 
 }
 
