@@ -13,10 +13,12 @@ myMetadata$Cage <- paste(myMetadata$Sex, myMetadata$Housing)
 
 
 ## Read in the columnclasses carefully.
-setwd("/Users/mbrown67/Documents/Fodor/Datasets/MarkExperiment/ArgonneSequencing/JanuaryResequencing/rawData/rg_results/")
+setwd("/Users/mbrown67/Documents/Fodor/Datasets/MarkExperiment/ArgonneSequencing/JanuaryResequencing/rawData/rg_results/testqiime")
 
 ## Will later be able to go through this and work on the other datasets.
 ## This code can be reused to get through the qiime taxonomic levels.
+
+for (taxa in 2:7){
 myT <- read.table("LyteSharon_r01_cr.txt", sep="\t", header=TRUE, comment.char="@")
 
 otutoTaxa <- cbind(myT$OTUID, myT$taxonomy)
@@ -53,4 +55,5 @@ myT$MatchFile <- as.character(rownames(myT))
 merged<-merge(x = myMetadata, y = myT, by = "MatchFile", all=TRUE)
 
 ## output to txt file
-write.table(merged, file=paste("qiimeOTULogNormwithMetadata.txt", sep=""), row.names = FALSE, sep="\t")
+write.table(merged, file=paste("qiimeR1_L_", taxa, "_LogNormwithMetadata.txt", sep=""), row.names = FALSE, sep="\t")
+}

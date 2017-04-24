@@ -21,7 +21,7 @@ tissues <- c("feces")
 for( t in tissues ) {
     subT <- myT[ myT$Source == t, ]
     ## Should ultimately be 20:58
-    for ( behavior in 20){
+    for ( behavior in 20:58){
 
         index <- 1
         names <- vector()
@@ -98,7 +98,7 @@ for( t in tissues ) {
             ## if( sum(bug != 0 ) > nrow(subT) / 4 ) {
             ## names[index] <- names(subT)[j]
 
-            behave <- subT[,behavior]
+            behave <- as.numeric(levels(subT[,behavior])[subT[,behavior]]
             sex <- factor(subT$Sex)
 
             cage <-  factor( paste( subT$Housing, subT$Sex, sep=""), c("#5,6,7,8 in same cagefemale", "#13,14,15,16 in same cagefemale", "#1,2,3,4 in same cagefemale", "#9,10,11,12 in same cagefemale",
@@ -106,7 +106,7 @@ for( t in tissues ) {
 
             myFrame <- data.frame(bug, sex, behave, cage)
 
-            plot( bug ~ behave , ylab="Log normalized abundance",
+            plot( behave, bug , ylab="Log normalized abundance",
                     main = paste("behavior p-value", format(dFrame$adjustedpValuesBehaveFromMixed[index],digits=3) ), col=ifelse(sex == "male", "blue", "pink"), pch=16)
 
             ##stripchart(bug ~ behave ,
@@ -143,7 +143,7 @@ scale_linetype_discrete(name='Sex', labels=c('Female','Male'))+
 labs(x = 'Behavioral Score', y = 'Log Normalized Abundance')+
 apatheme
 p
-
+                    ## plot(1, type="n", axes=F, xlab="", ylab="")
             boxplot( bug ~ cage ,las=2, ylab="Log normalized abundance",
                     main=paste("cage effect p-value", format(dFrame$pValuesCageAdjust[index],digits=3)), xaxt='n')
             ##            axis(1, at=c(1, 2, 3, 4, 5, 6, 7, 8),

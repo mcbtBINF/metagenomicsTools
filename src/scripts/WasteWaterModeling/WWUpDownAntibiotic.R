@@ -20,14 +20,48 @@ getColumnIndex <- function(myT, s)
 }
 
 
-## i <- 2
+i <- 2
 	fileName <- paste("denovoLogNormwithMetadata_L_", i, ".txt", sep = "")
 	myT <- read.table(fileName, sep="\t", header=TRUE)
 
+msCorrect <- read.table("LODLOQcorrection.txt", sep="\t", header=TRUE)
 ## This will be changed
-myT <- data.frame(lapply(myT, function(x) {
-            gsub("ND|<LOQ", 0, x)
-        }))
+## The data is on the drive in file: UNCC161_LOD.xlsx
+
+myT$Ertapenem..ng.L. <- gsub("ND", msCorrect$Ertapenem[1], myT$Ertapenem..ng.L.)
+myT$Ertapenem..ng.L. <- gsub("<LOQ", msCorrect$Ertapenem[2], myT$Ertapenem..ng.L.)
+myT$Ertapenem..ng.L. <- as.numeric(myT$Ertapenem..ng.L.)
+myT$Amoxicillin..ng.L. <- gsub("ND", msCorrect$Amoxicillin[1], myT$Amoxicillin..ng.L.)
+myT$Amoxicillin..ng.L. <- gsub("<LOQ", msCorrect$Amoxicillin[2], myT$Amoxicillin..ng.L.)
+myT$Amoxicillin..ng.L. <- as.numeric(myT$Amoxicillin..ng.L.)
+myT$Ciprofloxacin..ng.L. <- gsub("ND", msCorrect$Ciprofloxacin[1], myT$Ciprofloxacin..ng.L.)
+myT$Ciprofloxacin..ng.L. <- gsub("<LOQ", msCorrect$Ciprofloxacin[2], myT$Ciprofloxacin..ng.L.)
+myT$Ciprofloxacin..ng.L. <- as.numeric(myT$Ciprofloxacin..ng.L.)
+myT$Doxycycline..ng.L. <- gsub("ND", msCorrect$Doxycycline[1], myT$Doxycycline..ng.L.)
+myT$Doxycycline..ng.L. <- gsub("<LOQ", msCorrect$Doxycycline[2], myT$Doxycycline..ng.L.)
+myT$Doxycycline..ng.L. <- as.numeric(myT$Doxycycline..ng.L.)
+myT$Azithromycin..ng.L. <- gsub("ND", msCorrect$Azithromycin[1], myT$Azithromycin..ng.L.)
+myT$Azithromycin..ng.L. <- gsub("<LOQ", msCorrect$Azithromycin[2], myT$Azithromycin..ng.L.)
+myT$Azithromycin..ng.L. <- as.numeric(myT$Azithromycin..ng.L.)
+myT$Clindamycin..ng.L. <- gsub("ND", msCorrect$Clindamycin[1], myT$Clindamycin..ng.L.)
+myT$Clindamycin..ng.L. <- gsub("<LOQ", msCorrect$Clindamycin[2], myT$Clindamycin..ng.L.)
+myT$Clindamycin..ng.L. <- as.numeric(myT$Clindamycin..ng.L.)
+myT$Sulfamethoxazole..ng.L. <- gsub("ND", msCorrect$Sulfamethoxazole[1], myT$Sulfamethoxazole..ng.L.)
+myT$Sulfamethoxazole..ng.L. <- gsub("<LOQ", msCorrect$Sulfamethoxazole[2], myT$Sulfamethoxazole..ng.L.)
+myT$Sulfamethoxazole..ng.L. <- as.numeric(myT$Sulfamethoxazole..ng.L.)
+myT$Cephalexin..ng.L. <- gsub("ND", msCorrect$Cephalexin[1], myT$Cephalexin..ng.L.)
+myT$Cephalexin..ng.L. <- gsub("<LOQ", msCorrect$Cephalexin[2], myT$Cephalexin..ng.L.)
+myT$Cephalexin..ng.L. <- as.numeric(myT$Cephalexin..ng.L.)
+myT$Trimethoprim..ng.L. <- gsub("ND", msCorrect$Trimethoprim[1], myT$Trimethoprim..ng.L.)
+myT$Trimethoprim..ng.L. <- gsub("<LOQ", msCorrect$Trimethoprim[2], myT$Trimethoprim..ng.L.)
+myT$Trimethoprim..ng.L. <- as.numeric(myT$Trimethoprim..ng.L.)
+myT$Levofloxacin..ng.L. <- gsub("ND", msCorrect$Levofloxacin[1], myT$Levofloxacin..ng.L.)
+myT$Levofloxacin..ng.L. <- gsub("<LOQ", msCorrect$Levofloxacin[2], myT$Levofloxacin..ng.L.)
+myT$Levofloxacin..ng.L. <- as.numeric(myT$Levofloxacin..ng.L.)
+
+## myT <- data.frame(lapply(myT, function(x) {
+##             gsub("ND|<LOQ", 0, x)
+##         }))
 
 	pValueLocationsFromFull <- vector()
 	pValueUpDownFromFull<- vector()
@@ -62,7 +96,8 @@ myT <- data.frame(lapply(myT, function(x) {
 			justStreams <- myT[(myT$Location == "Mallard Creek" |myT$Location ==  "Sugar Creek") &
 						 (myT$Sample == "UP A" |myT$Sample == "UP B" |
 						 		 myT$Sample == "DS A" | myT$Sample == "DS B"), ]
-			locations <- factor(justStreams$Location)
+                locations <- factor(justStreams$Location)
+
 			streamBugs <- as.numeric(justStreams[,j])
 			#myLm <- lm( streamBugs ~ locations)
 			names[index] <- names(justStreams)[j]
@@ -72,7 +107,8 @@ myT <- data.frame(lapply(myT, function(x) {
 			boxplot( streamBugs ~ locations, main = paste("Stream (non-parametric) \nuncorrected p-value",  format(pValuesLocation[index], digits=3)))
 
 			updownBinary <- ifelse( justStreams$Sample == "DS A" | justStreams$Sample == "DS B" ,
-			"down", "up"  )
+                                               "down", "up"  )
+                updownBinary <- factor(updownBinary, c("up", "down"))
 
 			myFrame <- data.frame(streamBugs,locations, updownBinary, justStreams$Timestamp)
 
